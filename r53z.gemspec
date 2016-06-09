@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('aruba')
   spec.add_dependency('methadone', '~> 1.9.2')
   spec.add_dependency('aws-sdk')
+  spec.add_dependency('inifile')
   spec.add_development_dependency('pry')
   spec.add_development_dependency('test-unit')
 end

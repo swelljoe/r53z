@@ -1,6 +1,5 @@
 require 'test/unit'
-require_relative '../lib/config'
-require_relative '../lib/client'
+require_relative '../lib/r53z'
 
 class TestBackup < Test::Unit::TestCase
   def setup

@@ -1,7 +1,3 @@
-require 'aws-sdk'
-require 'methadone'
-require_relative 'config'
-
 module R53z
   class Client 
     include Methadone::CLILogging

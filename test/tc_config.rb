@@ -1,5 +1,5 @@
 require "test/unit"
-require_relative "../lib/config"
+require_relative "../lib/r53z"
 
 class TestConfig < Test::Unit::TestCase
   def test_creds
