@@ -41,8 +41,8 @@ Options:
     -r, --restore                    Restore zone from FILE(s)
     -e, --export                     Export zones to files in specified directory
     -p, --[no-]pretty                Enable or disable pretty printing
+                                         (default: true)
     -l, --list                       List one or all zones by name and ID
-                                     (default: true)
     -d, --delete                     Delete ZONE(s) by name
         --version                    Show help/version info
         --log-level LEVEL            Set the logging level
