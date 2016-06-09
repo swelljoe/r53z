@@ -29,7 +29,26 @@ aws_secret_access_key = SECRET_ACCESS_KEY
 region=us-east-1
 ```
 
-r53z 
+```
+Usage: r53z [options] [args...]
+
+Simple CLI to manage Route 53 zones
+
+v0.1.0
+
+Options:
+    -h, --help                       Show command line help
+    -r, --restore                    Restore zone from FILE(s)
+    -e, --export                     Export zones to files in specified directory
+    -p, --[no-]pretty                Enable or disable pretty printing
+    -l, --list                       List one or all zones by name and ID
+                                     (default: true)
+    -d, --delete                     Delete ZONE(s) by name
+        --version                    Show help/version info
+        --log-level LEVEL            Set the logging level
+                                     (debug|info|warn|error|fatal)
+                                     (Default: info)
+```
 
 ## Development
 
