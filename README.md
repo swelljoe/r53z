@@ -1,8 +1,6 @@
 # R53z
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/r53z`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A simple command line tool for managing Route 53. It's primary purpose is to back up and restore Route 53 zones. It can write zones to files in JSON format. It also provides a simple API (not a whole lot easier than the Amazon official API, but for backups and restores, it's easier to script with).
 
 ## Installation
 
@@ -22,7 +20,16 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Configure a credentials file in ~/.aws/credentials (this should be an INI file; same as several other AWS utilities expect). It'll look something like this:
+
+```ini
+[default]
+aws_access_key_id = ACCESS_KEY_ID
+aws_secret_access_key = SECRET_ACCESS_KEY
+region=us-east-1
+```
+
+r53z 
 
 ## Development
 
