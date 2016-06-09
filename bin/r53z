@@ -13,8 +13,6 @@ class App
     puts args
   end
 
-  # supplemental methods here
-
   # Command line interface specification
   description "Simple CLI to manage Route 53 zones"
   #
@@ -23,23 +21,11 @@ class App
   on("-e", "--export", "Export zones to files in specified directory")
   options[:pretty] = true # default to pretty printing JSON
   on("-p", "--[no-]pretty", "Enable of disable pretty printing")
-  options[:list] = true # Default to listing all zones
   on("-l", "--list", "List one or all zones by name and ID")
   on("-d", "--delete", "Delete ZONE(s) by name")
   
   # args greedily grabs any files or zones listed after the options
   arg(:args, :any)
-
-  # Specify switches via:
-  # on("--[no-]switch","Some switch")
-  #
-  # Or, just call OptionParser methods on opts
-  #
-  # Require an argument
-  # arg :some_arg 
-  #
-  # # Make an argument optional
-  # arg :optional_arg, :optional
 
   version R53z::VERSION
 
