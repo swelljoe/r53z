@@ -4,6 +4,7 @@ require_relative 'config'
 
 module R53z
   class Client 
+    include Methadone::CLILogging
     attr_accessor :client
 
     def initialize(section, creds)
@@ -48,12 +49,12 @@ module R53z
       end
       zoneinfo = self.client.create_hosted_zone({
         name: zone['name'],
-        caller_reference: 'R53-create-' + DateTime.now,
+        caller_reference: 'R53-create-' + Time.now.to_i.to_s,
         delegation_set_id: delegation_set_id
       })
       resp = self.client.change_resource_record_sets(
         hosted_zone_id: zoneinfo['hosted_zone']['id'],
-        change_batch:{
+        change_batch: {
           changes: [
             {
               action: "CREATE",
