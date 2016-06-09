@@ -48,7 +48,7 @@ module R53z
       end
       zoneinfo = self.client.create_hosted_zone({
         name: zone['name'],
-        caller_reference: 'R53-' + DateTime.now,
+        caller_reference: 'R53-create-' + DateTime.now,
         delegation_set_id: delegation_set_id
       })
       resp = self.client.change_resource_record_sets(
@@ -62,9 +62,23 @@ module R53z
           ]
         }
       )
-      if resp.error?
-        error resp.error
-      end
+      resp
+    end
+
+    def delete(name)
+      # get the ID
+      zone_id = self.client.list(name).first[:id]
+      resp = self.client.change_resource_record_sets(
+        hosted_zone_id: zone_id,
+        change_batch: {
+          changes: [
+            {
+              action: "DELETE",
+              resource_record_set: {}
+            }
+          ]
+        }
+      )
       resp
     end
 
