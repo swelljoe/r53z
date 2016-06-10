@@ -1,5 +1,3 @@
-require "securerandom"
-
 module R53z
   class Client 
     include Methadone::CLILogging
@@ -29,37 +27,38 @@ module R53z
           unless name[-1] == '.'
             name = name + '.'
           end
-          unless name == zone['name']
+          unless name == zone[:name]
             next
           end
         end
-        rv.push({:name => zone['name'], :id => zone['id']})
+        rv.push({:name => zone[:name], :id => zone[:id]})
       end
       rv
     end
 
-    # Create zone from a hash
+    # Create zone with record(s) from a hash
     def create(zone, delegation_set_id = nil)
-      if self.list(zone[:name])
-        error 'zone[:name] exists'
+      self.list(zone[:name]).any?
+      if self.list(zone[:name]).any?
+        error zone[:name] + 'exists'
       end
       zoneinfo = self.client.create_hosted_zone({
-        name: zone['name'],
-        caller_reference: 'R53-create-' + self.random_string,
-        delegation_set_id: delegation_set_id
+        :name => zone[:name],
+        :caller_reference => 'R53-create-' + self.random_string,
+        :delegation_set_id => delegation_set_id
       })
-      resp = self.client.change_resource_record_sets(
-        hosted_zone_id: zoneinfo['hosted_zone']['id'],
-        change_batch: {
-          changes: [
+      record_sets = {
+        :hosted_zone_id => zoneinfo[:hosted_zone][:id],
+        :change_batch => {
+          :changes => [
             {
-              action: "CREATE",
-              resource_record_set: zone
+              :action => "CREATE",
+              :resource_record_set => zone
             }
           ]
         }
-      )
-      resp
+      }
+      self.client.change_resource_record_sets(record_sets)
     end
 
     def delete(name)
