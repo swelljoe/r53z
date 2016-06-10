@@ -1,11 +1,11 @@
+require "securerandom"
+
 module R53z
   class Client 
     include Methadone::CLILogging
     attr_accessor :client
 
     def initialize(section, creds)
-      @section = section
-      @creds = creds
       @client = Aws::Route53::Client.new(
         access_key_id: creds[section]['aws_access_key_id'],
         secret_access_key: creds[section]['aws_secret_access_key'],
@@ -45,7 +45,7 @@ module R53z
       end
       zoneinfo = self.client.create_hosted_zone({
         name: zone['name'],
-        caller_reference: 'R53-create-' + Time.now.to_i.to_s,
+        caller_reference: 'R53-create-' + self.random_string,
         delegation_set_id: delegation_set_id
       })
       resp = self.client.change_resource_record_sets(
@@ -64,19 +64,8 @@ module R53z
 
     def delete(name)
       # get the ID
-      zone_id = self.client.list(name).first[:id]
-      resp = self.client.change_resource_record_sets(
-        hosted_zone_id: zone_id,
-        change_batch: {
-          changes: [
-            {
-              action: "DELETE",
-              resource_record_set: {}
-            }
-          ]
-        }
-      )
-      resp
+      zone_id = self.list(name).first[:id]
+      client.delete_hosted_zone(:id => zone_id)
     end
 
     def record_list(zone_id)
@@ -86,6 +75,10 @@ module R53z
         rv.push(record.to_h)
       end
       rv
+    end
+
+    def random_string(len=16)
+      rand(36**len).to_s(36)
     end
   end
 end
