@@ -64,7 +64,24 @@ module R53z
     def delete(name)
       # get the ID
       zone_id = self.list(name).first[:id]
+      self.delete_all_rr_sets(zone_id)
       client.delete_hosted_zone(:id => zone_id)
+    end
+
+    def delete_all_rr_sets(zone_id)
+      self.record_list(zone_id).reject do |rs|
+        (rs[:type] == "NS" || rs[:type] == "SOA")
+      end.each do |record_set|
+        self.client.change_resource_record_sets({
+          :hosted_zone_id => zone_id,
+          :change_batch => {
+            :changes => [{
+              :action=> "DELETE",
+              :resource_record_set => record_set
+            }]
+          }
+        })
+      end
     end
 
     def record_list(zone_id)
@@ -79,6 +96,7 @@ module R53z
     def random_string(len=16)
       rand(36**len).to_s(36)
     end
+
   end
 end
 
