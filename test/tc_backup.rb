@@ -1,4 +1,5 @@
 require 'test/unit'
+require 'time'
 require_relative '../lib/r53z'
 
 class TestBackup < Test::Unit::TestCase
@@ -8,7 +9,13 @@ class TestBackup < Test::Unit::TestCase
     @client = R53z::Client.new('default', creds)
     # Create a randomish zone name that doesn't exist already
     @domain = 'test' + Time.now.to_i.to_s + '.com'
-    @zone = {
+    @zoneinfo = {
+      :name => @domain,
+      :hosted_zone_config => {
+        :comment => "R53z test zone"
+      }
+    }
+    @zonerecords = {
       :name => @domain,
       :type => "A",
       :ttl => 1,
@@ -16,7 +23,7 @@ class TestBackup < Test::Unit::TestCase
         { :value => "198.154.100.100" }
       ]
     }
-    puts @zone
+    @tmppath = "test/tmp"
   end
 
   def teardown
@@ -24,23 +31,47 @@ class TestBackup < Test::Unit::TestCase
     unless @client.list(@domain).empty?
       @client.delete(@domain)
     end
+    # remove dump files
+    if File.file?(File.join(@tmppath, @domain + ".json"))
+      File.delete(File.join(@tmppath, @domain + ".json"))
+    end
+    if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
+      File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
+    end
   end
 
   def test_delete
     # create a zone to delete
-    @client.create(@zone)
+    @client.create(info: @zoneinfo, records: @zonerecords)
     assert(@client.list(@domain).any?) # exists? 
     @client.delete(@domain)
     assert(@client.list(@domain).empty?) # now gone?
   end
 
   def test_dump
-    # Test a dump to file
-    #dump = @client.
+    # Test a dump to files
+    # Should end up with a resource records file and a zone info file
+    @client.create(info: @zoneinfo, records: @zonerecords)
+    @client.dump(@tmppath, @domain)
+    # Records file exists?
+    assert(File.file?(File.join(@tmppath, @domain + ".json")))
+    # Meta data file exists?
+    assert(File.file?(File.join(@tmppath, @domain + ".zoneinfo.json")))
   end
 
   def test_restore
     # Test restore from file
+    # Create zone at AWS
+    @client.create(info: @zoneinfo, records: @zonerecords)
+    # Dump to file
+    @client.dump(@tmppath, @domain)
+    # Delete from AWS
+    @client.delete(@domain)
+    sleep 1
+    assert(!@client.list(@domain)) 
+    # Restore it from file
+    @client.restore(File.join(@tmppath, @domain))
+    assert(@client.list(@domain))
   end
 end
 

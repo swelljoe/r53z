@@ -36,24 +36,26 @@ module R53z
       rv
     end
 
-    # Create zone with record(s) from a hash
-    def create(zone, delegation_set_id = nil)
-      self.list(zone[:name]).any?
-      if self.list(zone[:name]).any?
-        error zone[:name] + 'exists'
+    # Create zone with record(s) from an info and records hash
+    def create(info:, records:)
+      self.list(info[:name]).any?
+      if self.list(info[:name]).any?
+        error info[:name] + 'exists'
       end
-      zoneinfo = self.client.create_hosted_zone({
-        :name => zone[:name],
-        :caller_reference => 'R53-create-' + self.random_string,
-        :delegation_set_id => delegation_set_id
+      zoneresp = self.client.create_hosted_zone({
+        :name => info[:name],
+        :caller_reference => info[:caller_reference] ||
+          'r53z-create-' + self.random_string,
+        :delegation_set_id => info[:delegation_set_id],
+        :hosted_zone_config => info[:hosted_zone_config]
       })
       record_sets = {
-        :hosted_zone_id => zoneinfo[:hosted_zone][:id],
+        :hosted_zone_id => zoneresp[:hosted_zone][:id],
         :change_batch => {
           :changes => [
             {
               :action => "CREATE",
-              :resource_record_set => zone
+              :resource_record_set => records
             }
           ]
         }
@@ -84,6 +86,31 @@ module R53z
       end
     end
 
+    def dump(dirpath, name)
+      # Get the ID
+      zone_id = self.list(name).first[:id]
+      # dump the record sets
+      R53z::JsonFile.write_json(
+        path: File.join(dirpath, name),
+        data: self.record_list(zone_id))
+      # Dump the zone metadata
+      R53z::JsonFile.write_json(
+        path: File.join(dirpath, name + ".zoneinfo"),
+        data: self.client.list_hosted_zones_by_name({
+          :dns_name => name,
+          :hosted_zone_id => zone_id,
+          :max_items => 1})[0][0].to_h)
+    end
+
+    def restore(path)
+      # Load up the zone info file
+      info = R53z::JsonFile.read_json(path + "zoneinfo.json")
+      puts info
+      records = R53z::JsonFile.read_json(path + ".json")
+      puts records
+      self.create(info: info, records: records)
+    end
+
     def record_list(zone_id)
       records = self.client.list_resource_record_sets(hosted_zone_id: zone_id)
       rv = []
@@ -96,7 +123,6 @@ module R53z
     def random_string(len=16)
       rand(36**len).to_s(36)
     end
-
   end
 end
 
