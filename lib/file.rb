@@ -9,7 +9,7 @@ module R53z
         path = path + '.json'
       end
       file = File.read(path)
-      JSON.load(file)
+      JSON.parse(file, :symbolize_names => true)
     end
 
     def self.write_json(path:, data:)

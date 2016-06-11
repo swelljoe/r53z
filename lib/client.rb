@@ -38,29 +38,30 @@ module R53z
 
     # Create zone with record(s) from an info and records hash
     def create(info:, records:)
-      self.list(info[:name]).any?
-      if self.list(info[:name]).any?
-        error info[:name] + 'exists'
-      end
-      zoneresp = self.client.create_hosted_zone({
+      #if self.list(info[:name]).any?
+      #  error(info[:name] + "exists")
+      #end
+      zone_resp = self.client.create_hosted_zone({
         :name => info[:name],
-        :caller_reference => info[:caller_reference] ||
-          'r53z-create-' + self.random_string,
+        :caller_reference => 'r53z-create-' + self.random_string,
         :delegation_set_id => info[:delegation_set_id],
         :hosted_zone_config => info[:hosted_zone_config]
       })
-      record_sets = {
-        :hosted_zone_id => zoneresp[:hosted_zone][:id],
-        :change_batch => {
-          :changes => [
-            {
-              :action => "CREATE",
-              :resource_record_set => records
+      records.each do |record|
+        unless (record[:type] == "NS" || record[:type] == "SOA")
+          self.client.change_resource_record_sets({
+            :hosted_zone_id => zone_resp[:hosted_zone][:id],
+            :change_batch => {
+              :changes => [
+                {
+                  :action => "CREATE",
+                  :resource_record_set => record
+                }
+              ]
             }
-          ]
-        }
-      }
-      self.client.change_resource_record_sets(record_sets)
+          })
+        end
+      end
     end
 
     def delete(name)
@@ -102,13 +103,13 @@ module R53z
           :max_items => 1})[0][0].to_h)
     end
 
-    def restore(path)
+    def restore(path, domain)
       # Load up the zone info file
-      info = R53z::JsonFile.read_json(path + "zoneinfo.json")
-      puts info
-      records = R53z::JsonFile.read_json(path + ".json")
+      file = File.join(path, domain)
+      info = R53z::JsonFile.read_json(path: file + ".zoneinfo.json")
+      records = R53z::JsonFile.read_json(path: file + ".json")
       puts records
-      self.create(info: info, records: records)
+      self.create(:info => info, :records => records)
     end
 
     def record_list(zone_id)

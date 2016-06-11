@@ -15,14 +15,14 @@ class TestBackup < Test::Unit::TestCase
         :comment => "R53z test zone"
       }
     }
-    @zonerecords = {
+    @zonerecords = [{
       :name => @domain,
       :type => "A",
       :ttl => 1,
       :resource_records => [
         { :value => "198.154.100.100" }
       ]
-    }
+    }]
     @tmppath = "test/tmp"
   end
 
@@ -32,12 +32,12 @@ class TestBackup < Test::Unit::TestCase
       @client.delete(@domain)
     end
     # remove dump files
-    if File.file?(File.join(@tmppath, @domain + ".json"))
-      File.delete(File.join(@tmppath, @domain + ".json"))
-    end
-    if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
-      File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
-    end
+    #if File.file?(File.join(@tmppath, @domain + ".json"))
+    #  File.delete(File.join(@tmppath, @domain + ".json"))
+    #end
+    #if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
+    #  File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
+    #end
   end
 
   def test_delete
@@ -68,9 +68,9 @@ class TestBackup < Test::Unit::TestCase
     # Delete from AWS
     @client.delete(@domain)
     sleep 1
-    assert(!@client.list(@domain)) 
+    assert_equal(@client.list(@domain), []) 
     # Restore it from file
-    @client.restore(File.join(@tmppath, @domain))
+    @client.restore(@tmppath, @domain)
     assert(@client.list(@domain))
   end
 end

@@ -3,7 +3,7 @@ require_relative "../lib/r53z"
 
 class TestFile < Test::Unit::TestCase
   def setup
-    @zone = { "name" => "000000test.com", "type" => "SOA", "region" => "us-east-1", "ttl" => "1", "resource_records" => [{ "value" => "ns-895.awsdns-47.net. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"}]} 
+    @zone = { :name => "000000test.com", :type => "SOA", :region => "us-east-1", :ttl => "1", :resource_records => [{ :value => "ns-895.awsdns-47.net. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"}]} 
     # test_file
     @filename = 'test/tmp/000000test.com.json'
     R53z::JsonFile.write_json(path: @filename, data: @zone)
