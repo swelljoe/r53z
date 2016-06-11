@@ -11,8 +11,8 @@ class TestBackup < Test::Unit::TestCase
     @domain = 'test' + Time.now.to_i.to_s + '.com'
     @zoneinfo = {
       :name => @domain,
-      :hosted_zone_config => {
-        :comment => "R53z test zone"
+      :config => {
+        :comment => 'R53z test zone'
       }
     }
     @zonerecords = [{
@@ -32,12 +32,12 @@ class TestBackup < Test::Unit::TestCase
       @client.delete(@domain)
     end
     # remove dump files
-    #if File.file?(File.join(@tmppath, @domain + ".json"))
-    #  File.delete(File.join(@tmppath, @domain + ".json"))
-    #end
-    #if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
-    #  File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
-    #end
+    if File.file?(File.join(@tmppath, @domain + ".json"))
+      File.delete(File.join(@tmppath, @domain + ".json"))
+    end
+    if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
+      File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
+    end
   end
 
   def test_delete

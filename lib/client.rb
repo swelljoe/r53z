@@ -41,13 +41,19 @@ module R53z
       #if self.list(info[:name]).any?
       #  error(info[:name] + "exists")
       #end
+      # XXX: AWS sends out a data structure with config:, but expects
+      # hosted_zone_config on create/restore. argh.
+      # XXX: also, private_zone is not accepted here for some reason
       zone_resp = self.client.create_hosted_zone({
         :name => info[:name],
         :caller_reference => 'r53z-create-' + self.random_string,
         :delegation_set_id => info[:delegation_set_id],
-        :hosted_zone_config => info[:hosted_zone_config]
+        :hosted_zone_config => {
+          :comment => info[:config][:comment]
+        }
       })
       records.each do |record|
+        # skip these, as they are handled separately (delegation set?)
         unless (record[:type] == "NS" || record[:type] == "SOA")
           self.client.change_resource_record_sets({
             :hosted_zone_id => zone_resp[:hosted_zone][:id],
@@ -108,7 +114,6 @@ module R53z
       file = File.join(path, domain)
       info = R53z::JsonFile.read_json(path: file + ".zoneinfo.json")
       records = R53z::JsonFile.read_json(path: file + ".json")
-      puts records
       self.create(:info => info, :records => records)
     end
 
