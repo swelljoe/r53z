@@ -12,7 +12,7 @@ module R53z
     end
 
     # list one or all zones by name and ID
-    def list(name = nil, delegation_set_id = nil)
+    def list(name: nil, delegation_set_id: nil)
       begin
         zones = self.client.list_hosted_zones(
           delegation_set_id: delegation_set_id
@@ -23,7 +23,7 @@ module R53z
 
       rv = []
       zones.each do |zone|
-        if name 
+        if name
           unless name[-1] == '.'
             name = name + '.'
           end
@@ -72,7 +72,7 @@ module R53z
 
     def delete(name)
       # get the ID
-      zone_id = self.list(name).first[:id]
+      zone_id = self.list(:name => name).first[:id]
       self.delete_all_rr_sets(zone_id)
       client.delete_hosted_zone(:id => zone_id)
     end
@@ -95,14 +95,19 @@ module R53z
 
     def dump(dirpath, name)
       # Get the ID
-      zone_id = self.list(name).first[:id]
+      zone_id = self.list(:name => name).first[:id]
+
+      # normalize name
+      unless name[-1] == '.'
+        name = name + '.'
+      end
       # dump the record sets
       R53z::JsonFile.write_json(
         path: File.join(dirpath, name),
         data: self.record_list(zone_id))
       # Dump the zone metadata
       R53z::JsonFile.write_json(
-        path: File.join(dirpath, name + ".zoneinfo"),
+        path: File.join(dirpath, name + "zoneinfo"),
         data: self.client.list_hosted_zones_by_name({
           :dns_name => name,
           :hosted_zone_id => zone_id,
@@ -110,10 +115,14 @@ module R53z
     end
 
     def restore(path, domain)
+      # normalize domain
+      unless domain[-1] == '.'
+        domain = domain + '.'
+      end
       # Load up the zone info file
       file = File.join(path, domain)
-      info = R53z::JsonFile.read_json(path: file + ".zoneinfo.json")
-      records = R53z::JsonFile.read_json(path: file + ".json")
+      info = R53z::JsonFile.read_json(path: file + "zoneinfo")
+      records = R53z::JsonFile.read_json(path: file)
       self.create(:info => info, :records => records)
     end
 

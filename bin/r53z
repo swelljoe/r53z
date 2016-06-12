@@ -9,21 +9,23 @@ class App
   include Methadone::CLILogging
 
   main do |*args|
-    puts options[:restore]
-    puts args
+    help_now! "No options provided." if options.empty? 
+    R53z::Cli.new(:options => options, :args => args)
   end
 
   # Command line interface specification
-  description "Simple CLI to manage Route 53 zones"
+  description "Simple CLI to manage, backup, and restore, Route 53 zones"
   #
   # Accept flags via:
+  on("-x", "--export", "Export zone to files in specified directory")
   on("-r", "--restore", "Restore zone from FILE(s)")
-  on("-e", "--export", "Export zones to files in specified directory")
-  options[:pretty] = true # default to pretty printing JSON
   on("-p", "--[no-]pretty", "Enable of disable pretty printing")
-  on("-l", "--list", "List one or all zones by name and ID")
+  on("-l", "--list", "List name and ID of one or all zones")
+  on("-s", "--record-sets", "List record sets for the given zone")
   on("-d", "--delete", "Delete ZONE(s) by name")
-  
+  on("-c", "--credentials", "File containing credentials information")
+  on("-u", "--section", "Section (user) in the credentials file to use")
+
   # args greedily grabs any files or zones listed after the options
   arg(:args, :any)
 

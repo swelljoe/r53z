@@ -28,7 +28,7 @@ class TestBackup < Test::Unit::TestCase
 
   def teardown
     # delete the new zone, if it still exists
-    unless @client.list(@domain).empty?
+    unless @client.list(:name => @domain).empty?
       @client.delete(@domain)
     end
     # remove dump files
@@ -43,9 +43,9 @@ class TestBackup < Test::Unit::TestCase
   def test_delete
     # create a zone to delete
     @client.create(info: @zoneinfo, records: @zonerecords)
-    assert(@client.list(@domain).any?) # exists? 
+    assert(@client.list(:name => @domain).any?) # exists? 
     @client.delete(@domain)
-    assert(@client.list(@domain).empty?) # now gone?
+    assert(@client.list(:name => @domain).empty?) # now gone?
   end
 
   def test_dump
@@ -68,10 +68,10 @@ class TestBackup < Test::Unit::TestCase
     # Delete from AWS
     @client.delete(@domain)
     sleep 1
-    assert_equal(@client.list(@domain), []) 
+    assert_equal(@client.list(:name => @domain), []) 
     # Restore it from file
     @client.restore(@tmppath, @domain)
-    assert(@client.list(@domain))
+    assert(@client.list(:name => @domain))
   end
 end
 
