@@ -11,6 +11,8 @@ module R53z
       creds = R53z::Config.new(config_file)
       @client = R53z::Client.new(section, creds)
 
+      # XXX Dispath table seems smarter...can't figure out how to do run methods based
+      # directly on hash keys at the moment.
       if options[:export]
         help_now! "Export requires a directory path for zone files" if args.length < 1
         export(:options => options, :args => args)
@@ -32,6 +34,13 @@ module R53z
           help_now! "Delete requires one or more zone names"
         end
         delete(:options => options, :args => args)
+      end
+
+      if options['list-delegation-sets']
+        sets = @client.list_delegation_sets
+        sets.each do |set|
+          puts JSON.pretty_generate(set.to_h)
+        end
       end
     end
 

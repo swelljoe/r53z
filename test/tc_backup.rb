@@ -40,6 +40,10 @@ class TestBackup < Test::Unit::TestCase
     end
   end
 
+  def test_client_class
+    assert_instance_of(R53z::Client, @client)
+  end
+
   def test_delete
     # create a zone to delete
     @client.create(info: @zoneinfo, records: @zonerecords)

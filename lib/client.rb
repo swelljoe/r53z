@@ -135,6 +135,30 @@ module R53z
       rv
     end
 
+    def create_delegation_set(zone_id = nil)
+      self.client.create_reusable_delegation_set({
+        caller_reference: 'r53z-create-del-set-' + self.random_string,
+        hosted_zone_id: zone_id
+      })
+    end
+
+    def list_delegation_sets
+      resp = self.client.list_reusable_delegation_sets({})
+      return resp.delegation_sets
+    end
+    
+    def get_delegation_set(id:)
+      self.client.get_reusable_delegation_set({
+        id: id
+      })
+    end
+
+    def delete_delegation_set(id:)
+      self.client.delete_reusable_delegation_set({
+        id: id
+      })
+    end
+
     def random_string(len=16)
       rand(36**len).to_s(36)
     end
