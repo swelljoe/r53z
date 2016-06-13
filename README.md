@@ -20,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-Configure a credentials file in ~/.aws/credentials (this should be an INI file; same as several other AWS utilities expect). It'll look something like this:
+Configure a credentials file in `~/.aws/credentials` (this should be an INI file; same as several other AWS utilities expect). It'll look something like this:
 
 ```ini
 [default]
@@ -29,7 +29,7 @@ aws_secret_access_key = SECRET_ACCESS_KEY
 region=us-east-1
 ```
 
-You can use the `--section` option to choose which section to use from the credentials file, and the credentials file can be specified with the --credentials option.
+You can use the `--section` option to choose which section to use from the credentials file, and the credentials file can be specified with the `--credentials` option.
 
 ```
 Usage: r53z [options] [args...]
@@ -43,7 +43,6 @@ Options:
     -x, --export                     Export zones to files in specified directory, optionally specify one or more zones
     -r, --restore                    Restore zone from directory, optionally specify one or more zones
     -l, --list                       List name and ID of one or all zones
-    -s, --record-sets                List record sets for the given zone
     -d, --delete                     Delete one or more zone(s) by name (WARNING: No confirmation!)
     -c, --credentials                File containing credentials information
     -u, --section                    Section (user) in the credentials file to use
@@ -87,10 +86,6 @@ $ r53z --restore /home/joe/zones swelljoe.com
 #### --list|-l [--delegation-set ID] [zones]
 
 List hosted zones. List can be restricted to just the listed zones, or to a given delegation set. Output is JSON encoded, and will contain the name and ID of each zone. If no zones are specified, all zones will be listed.
-
-#### --record-sets|-s <zone>
-
-Display the record set
 
 #### --delete|-d <zone>
 
