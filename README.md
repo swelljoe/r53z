@@ -57,7 +57,7 @@ Options:
 
 ### Command Line Options
 
-#### --export|-x <path> [zones]
+#### --export|-x {path} [zones]
 
 Export one or more zones to the named directory.
 
@@ -71,7 +71,7 @@ Two files will be generated in the directory specified, one for the zone metadat
 $ r53z --export /home/joe/zones swelljoe.com
 ```
 
-#### --restore|-r <path> [zones]
+#### --restore|-r {path} [zones]
 
 Restore one or more zones from files in the named directory.
 
@@ -87,7 +87,7 @@ $ r53z --restore /home/joe/zones swelljoe.com
 
 List hosted zones. List can be restricted to just the listed zones, or to a given delegation set. Output is JSON encoded, and will contain the name and ID of each zone. If no zones are specified, all zones will be listed.
 
-#### --delete|-d <zone>
+#### --delete|-d {zone}
 
 Delete one or more zones. Argument is the name of the zone, or zones, to delete. This command deletes the record sets for the zone first, and then deletes the zone itself (a zone with records cannot be deleted). There is no confirmation step for this option.
 
@@ -97,7 +97,7 @@ Delete one or more zones. Argument is the name of the zone, or zones, to delete.
 $ r53z --delete swelljoe.com virtualmin.com
 ```
 
-#### --credentials|-c <path/filename>
+#### --credentials|-c {path/filename}
 
 Specify the credentials configuration file on the command line. The file must be an INI file. By default, it will look for a file in ~/.aws/credentials (which is common across several AWS management tools). You can use the `--section` option to choose what section of the file to use.
 
