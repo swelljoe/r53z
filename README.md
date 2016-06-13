@@ -47,7 +47,7 @@ Options:
     -d, --delete                     Delete one or more zone(s) by name (WARNING: No confirmation!)
     -c, --credentials                File containing credentials information
     -u, --section                    Section (user) in the credentials file to use
-    -g, --delegation-set ID          Delegation set ID to use for varios operations
+    -g, --delegation-set ID          Delegation set ID to use for various operations
     -t, --list-delegation-sets       List all delegation sets
     -n, --name-servers ID            List name servers for delegation set
         --version                    Show help/version info
@@ -58,7 +58,7 @@ Options:
 
 ### Command Line Options
 
-#### --export | -x
+#### --export|-x <path> [zones]
 
 Export one or more zones to the named directory.
 
@@ -72,7 +72,7 @@ Two files will be generated in the directory specified, one for the zone metadat
 $ r53z --export /home/joe/zones swelljoe.com
 ```
 
-#### --restore | -r
+#### --restore|-r <path> [zones]
 
 Restore one or more zones from files in the named directory.
 
@@ -81,9 +81,30 @@ Requires a directory path, and optionally one or more zone names. If no names ar
 ##### Example
 
 ```
-r53z --restore /home/joe/zones swelljoe.com
+$ r53z --restore /home/joe/zones swelljoe.com
 ```
 
+#### --list|-l [--delegation-set ID] [zones]
+
+List hosted zones. List can be restricted to just the listed zones, or to a given delegation set. Output is JSON encoded, and will contain the name and ID of each zone. If no zones are specified, all zones will be listed.
+
+#### --record-sets|-s <zone>
+
+Display the record set
+
+#### --delete|-d <zone>
+
+Delete one or more zones. Argument is the name of the zone, or zones, to delete. This command deletes the record sets for the zone first, and then deletes the zone itself (a zone with records cannot be deleted). There is no confirmation step for this option.
+
+##### Example
+
+```
+$ r53z --delete swelljoe.com virtualmin.com
+```
+
+#### --credentials|-c <path/filename>
+
+Specify the credentials configuration file on the command line. The file must be an INI file. By default, it will look for a file in ~/.aws/credentials (which is common across several AWS management tools). You can use the `--section` option to choose what section of the file to use.
 
 ## Development
 

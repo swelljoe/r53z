@@ -1,5 +1,6 @@
 module R53z
   class Client 
+    include Methadone::Main
     include Methadone::CLILogging
     attr_accessor :client
 
@@ -47,7 +48,7 @@ module R53z
       zone_resp = self.client.create_hosted_zone({
         :name => info[:name],
         :caller_reference => 'r53z-create-' + self.random_string,
-        :delegation_set_id => info[:delegation_set_id],
+        :delegation_set_id => info[:delegation_set_id] || options['delegation-set-id'],
         :hosted_zone_config => {
           :comment => info[:config][:comment]
         }
