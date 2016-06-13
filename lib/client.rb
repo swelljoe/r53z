@@ -71,6 +71,7 @@ module R53z
       end
     end
 
+    # delete a zone by name
     def delete(name)
       # get the ID
       zone_id = self.list(:name => name).first[:id]
@@ -78,6 +79,8 @@ module R53z
       client.delete_hosted_zone(:id => zone_id)
     end
 
+    # delete all of the resource record sets in a zone (this is required to delete
+    # a zone
     def delete_all_rr_sets(zone_id)
       self.record_list(zone_id).reject do |rs|
         (rs[:type] == "NS" || rs[:type] == "SOA")
@@ -94,6 +97,8 @@ module R53z
       end
     end
 
+    # dump a zone to a direcory. Will generate two files; a zoneinfo file and a 
+    # records file.
     def dump(dirpath, name)
       # Get the ID
       zone_id = self.list(:name => name).first[:id]
@@ -115,6 +120,8 @@ module R53z
           :max_items => 1})[0][0].to_h)
     end
 
+    # Restore a zone from the given path. It expects files named
+    # zone.zoneinfo.json and zone.json
     def restore(path, domain)
       # normalize domain
       unless domain[-1] == '.'
@@ -136,6 +143,7 @@ module R53z
       rv
     end
 
+    # create a new delegation set, optionally associated with an existing zone
     def create_delegation_set(zone_id = nil)
       self.client.create_reusable_delegation_set({
         caller_reference: 'r53z-create-del-set-' + self.random_string,
@@ -143,23 +151,27 @@ module R53z
       })
     end
 
+    # list all delegation sets
     def list_delegation_sets
       resp = self.client.list_reusable_delegation_sets({})
       return resp.delegation_sets
     end
     
+    # get details of a delegation set specified by ID, incuding name servers
     def get_delegation_set(id:)
       self.client.get_reusable_delegation_set({
         id: id
       })
     end
 
+    # delete a delegation set by ID
     def delete_delegation_set(id:)
       self.client.delete_reusable_delegation_set({
         id: id
       })
     end
 
+    # random string generator helper function
     def random_string(len=16)
       rand(36**len).to_s(36)
     end
