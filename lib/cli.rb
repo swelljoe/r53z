@@ -11,7 +11,7 @@ module R53z
       creds = R53z::Config.new(config_file)
       @client = R53z::Client.new(section, creds)
 
-      # XXX Dispath table seems smarter...can't figure out how to do run methods based
+      # XXX Dispath table seems smarter...can't figure out how to calls methods based
       # directly on hash keys at the moment.
       if options[:export]
         help_now! "Export requires a directory path for zone files" if args.length < 1
@@ -33,7 +33,9 @@ module R53z
         if args.empty?
           help_now! "Delete requires one or more zone names"
         end
-        delete(:options => options, :args => args)
+        args.each do |name|
+          @client.delete(name)
+        end
       end
 
       if options['list-delegation-sets']
@@ -41,6 +43,11 @@ module R53z
         sets.each do |set|
           puts JSON.pretty_generate(set.to_h)
         end
+      end
+
+      if options['name-servers']
+        dset = @client.get_delegation_set(id: options['name-servers'])
+        puts JSON.pretty_generate(dset.delegation_set[:name_servers])
       end
     end
 
@@ -84,16 +91,15 @@ module R53z
     def list(options:, args:)
       if args.any?
         args.each do |name|
-          puts JSON.pretty_generate(@client.list(:name => name))
+          puts JSON.pretty_generate(
+            @client.list(
+              :name => name,
+              :delegation_set_id => options['delegation-set']))
         end
       else
-        puts JSON.pretty_generate(@client.list)
-      end
-    end
-
-    def delete(options:, args:)
-      args.each do |name|
-        @client.delete(name)
+        puts JSON.pretty_generate(
+          @client.list(:delegation_set_id => options['delegation-set'])
+        )
       end
     end
   end
