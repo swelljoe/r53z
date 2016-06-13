@@ -17,12 +17,11 @@ class App
   description "Simple CLI to manage, backup, and restore, Route 53 zones"
   #
   # Accept flags via:
-  on("-x", "--export", "Export zone to files in specified directory")
-  on("-r", "--restore", "Restore zone from FILE(s)")
-  on("-p", "--[no-]pretty", "Enable of disable pretty printing")
+  on("-x", "--export", "Export zones to files in specified directory, optionally specify one or more zones")
+  on("-r", "--restore", "Restore zone from directory, optionally specify one or more zones")
   on("-l", "--list", "List name and ID of one or all zones")
   on("-s", "--record-sets", "List record sets for the given zone")
-  on("-d", "--delete", "Delete ZONE(s) by name")
+  on("-d", "--delete", "Delete one or more zone(s) by name (WARNING: No confirmation!)")
   on("-c", "--credentials", "File containing credentials information")
   on("-u", "--section", "Section (user) in the credentials file to use")
 

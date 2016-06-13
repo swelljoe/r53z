@@ -2,6 +2,9 @@ require 'json'
 
 module R53z
   class Cli
+    include Methadone::Main
+    include Methadone::CLILogging
+
     def initialize(options:, args:)
       section = options[:section] || 'default'
       config_file = options[:credentials]
@@ -14,19 +17,27 @@ module R53z
       end
 
       if options[:restore]
-        help_now! "Restore requires one or more files to restore (don't include file extensions)" if args.empty?
+        if args.empty?
+          help_now! "Restore requires a directory containing zone files and optionally one or more zones to restore"
+        end
         restore(:options => options, :args => args)
       end
 
       if options[:list]
-        self.list(options: options, args: args)
+        list(options: options, args: args)
+      end
+
+      if options[:delete]
+        if args.empty?
+          help_now! "Delete requires one or more zone names"
+        end
+        delete(:options => options, :args => args)
       end
     end
 
     def export(options:, args:)
       path = args.shift
       # If no zones, dump all zones
-      puts args.length
       zones = []
       # One zone, multiple, or all?
       if args.empty?
@@ -42,6 +53,25 @@ module R53z
       end
     end
 
+    def restore(options:, args:)
+      path = args.shift
+      # If no zones, restore all zones in directory
+      zones = []
+      if args.empty?
+        # derive list of zones from files in path
+        zones = Dir[File.join(path, "*.json")].reject {|n| n.match("zoneinfo")}
+      else
+        # restore the ones specified
+        args.each do |zone|
+          zones.push(zone)
+        end
+      end
+
+      zones.each do |zone|
+        @client.restore(path, zone)
+      end
+    end
+
     def list(options:, args:)
       if args.any?
         args.each do |name|
@@ -49,6 +79,12 @@ module R53z
         end
       else
         puts JSON.pretty_generate(@client.list)
+      end
+    end
+
+    def delete(options:, args:)
+      args.each do |name|
+        @client.delete(name)
       end
     end
   end
