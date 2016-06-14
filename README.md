@@ -29,7 +29,7 @@ aws_secret_access_key = SECRET_ACCESS_KEY
 region=us-east-1
 ```
 
-You can use the `--section` option to choose which section to use from the credentials file, and the credentials file can be specified with the `--credentials` option.
+You can use the `--section` option to choose which section to use from the credentials file, and the credentials file can be specified with the `--credentials` option. Region is irrelevant with Route 53, but the aws-sdk weirdly still requires it be present.
 
 ```
 Usage: r53z [options] [args...]
