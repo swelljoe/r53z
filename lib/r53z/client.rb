@@ -114,10 +114,8 @@ module R53z
       # Dump the zone metadata
       R53z::JsonFile.write_json(
         path: File.join(dirpath, name + "zoneinfo"),
-        data: self.client.list_hosted_zones_by_name({
-          :dns_name => name,
-          :hosted_zone_id => zone_id,
-          :max_items => 1})[0][0].to_h)
+        data: self.client.get_hosted_zone({
+          :id => zone_id}).hosted_zone.to_h)
     end
 
     # Restore a zone from the given path. It expects files named
