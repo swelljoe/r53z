@@ -171,6 +171,14 @@ module R53z
       })
     end
 
+    # Get delegation set ID for the give zone
+    def get_delegation_set_id(name:)
+      zone_id = self.list(:name => name).first[:id]
+      self.client.get_hosted_zone({
+        id: zone_id 
+      }).delegation_set[:id]
+    end
+
     # random string generator helper function
     def random_string(len=16)
       rand(36**len).to_s(36)

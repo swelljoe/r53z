@@ -59,4 +59,11 @@ class TestDelegationSet < Test::Unit::TestCase
     # aside from just an empty reply, I think?
     #assert(@client.get_delegation_set(id: del_set_id).empty?)
   end
+
+  def test_get_delegation_id
+    # Find out the delegation set ID of the test zone
+    # and check it agains the value in @dset.
+    del_set_id = @client.get_delegation_set_id(name: @domain)
+    assert(del_set_id == @dset.delegation_set[:id])
+  end
 end
