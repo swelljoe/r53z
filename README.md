@@ -61,9 +61,9 @@ Options:
 
 Export one or more zones to the named directory.
 
-Requires a directory path (e.g. /tmp/zonedumps), and optionally one or more zone names. Will export all zones if none specified. If a delegation set ID is given, only zones that share the given delegaion set will be exported.
+Requires a directory path (e.g. /tmp/zonedumps), and optionally one or more zone names. All zones will be exported if none are specified. If a delegation set ID is given, only zones that share the given delegation set will be exported.
 
-Two files will be generated in the directory specified, one for the zone metadata (with a zoneinfo.json extension) and the zone records information (with a .json extension).
+Two files will be generated in the directory specified, one for the zone metadata (with a zoneinfo.json extension) and the zone records information (with a .json extension). The zone metadata file will contain all of the information needed to recreate the zone, incluing the delegation set ID. And, the record set file will contain all of the record sets needed to repopulate the zone; SOA and NS records are not restored as they are defined by the delegation set, rather than by records within the zone.
 
 ##### Example
 
@@ -76,6 +76,8 @@ $ r53z --export /home/joe/zones swelljoe.com
 Restore one or more zones from files in the named directory.
 
 Requires a directory path, and optionally one or more zone names. If no names are given, all files in the directory will be restored. If a delegation set is specified, all zones will be added to the delegation set specified. (The zone info and the record sets don't contain delegation set information, making delegation set selection on restore a little difficult to automate.)
+
+If `--delegation-set` is specified on the command line, it will override the delegation-set information provided in the zoneinfo file. This can be used if the delegation set specified in the file is no longer available, for some reason (deletion, migrating to a new account, etc.).
 
 ##### Example
 
