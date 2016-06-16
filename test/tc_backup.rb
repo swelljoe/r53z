@@ -38,12 +38,12 @@ class TestBackup < Test::Unit::TestCase
       @client.delete_delegation_set(id: dset_id) if dset_id
     end
     # remove dump files
-    #if File.file?(File.join(@tmppath, @domain + ".json"))
-    #  File.delete(File.join(@tmppath, @domain + ".json"))
-    #end
-    #if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
-    #  File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
-    #end
+    if File.file?(File.join(@tmppath, @domain + ".json"))
+      File.delete(File.join(@tmppath, @domain + ".json"))
+    end
+    if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
+      File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
+    end
   end
 
   def test_client_class
