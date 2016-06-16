@@ -10,9 +10,11 @@ class TestBackup < Test::Unit::TestCase
     # Create a randomish zone name that doesn't exist already
     @domain = 'test' + Time.now.to_i.to_s + '.com'
     @zoneinfo = {
-      :name => @domain,
-      :config => {
-        :comment => 'R53z test zone'
+      :hosted_zone => {
+        :name => @domain,
+        :config => {
+          :comment => 'R53z test zone'
+        }
       }
     }
     @zonerecords = [{
@@ -29,15 +31,19 @@ class TestBackup < Test::Unit::TestCase
   def teardown
     # delete the new zone, if it still exists
     unless @client.list(:name => @domain).empty?
+      # find the delegation set, if it still exists
+      dset_id = @client.get_delegation_set_id(@domain)
       @client.delete(@domain)
+      # delete the delegation set once zone is gone
+      @client.delete_delegation_set(id: dset_id) if dset_id
     end
     # remove dump files
-    if File.file?(File.join(@tmppath, @domain + ".json"))
-      File.delete(File.join(@tmppath, @domain + ".json"))
-    end
-    if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
-      File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
-    end
+    #if File.file?(File.join(@tmppath, @domain + ".json"))
+    #  File.delete(File.join(@tmppath, @domain + ".json"))
+    #end
+    #if File.file?(File.join(@tmppath, @domain + ".zoneinfo.json"))
+    #  File.delete(File.join(@tmppath, @domain + ".zoneinfo.json"))
+    #end
   end
 
   def test_client_class
@@ -70,7 +76,9 @@ class TestBackup < Test::Unit::TestCase
     # Dump to file
     @client.dump(@tmppath, @domain)
     # Delete from AWS
+    dset_id = @client.get_delegation_set_id(@domain)
     @client.delete(@domain)
+    @client.delete_delegation_set(id: dset_id) if dset_id
     sleep 1
     assert_equal(@client.list(:name => @domain), []) 
     # Restore it from file

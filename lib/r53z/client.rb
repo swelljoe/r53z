@@ -39,24 +39,34 @@ module R53z
 
     # Create zone with record(s) from an info and records hash
     def create(info:, records:)
+      rv = {} # pile up the responses in a single hash
       #if self.list(info[:name]).any?
       #  error(info[:name] + "exists")
       #end
       # XXX: AWS sends out a data structure with config:, but expects
       # hosted_zone_config on create/restore. argh.
       # XXX: also, private_zone is not accepted here for some reason
-      zone_resp = self.client.create_hosted_zone({
-        :name => info[:name],
+      zone = info[:hosted_zone]
+      zone_data = {
+        :name => zone[:name],
         :caller_reference => 'r53z-create-' + self.random_string,
-        :delegation_set_id => info[:delegation_set_id] || options['delegation-set-id'],
         :hosted_zone_config => {
-          :comment => info[:config][:comment]
+          :comment => zone[:config][:comment]
         }
-      })
+      }
+      # command line overrides everything else
+      if options['delegation-set']
+        zone_data[:delegation_set_id] = options['delegation-set']
+      elsif info[:delegation_set] and info[:delegation_set][:id]
+        zone_data[:delegation_set_id] = info[:delegation_set][:id]
+      end
+      zone_resp = self.client.create_hosted_zone(zone_data)
+      rv[:hosted_zone_resp] = zone_resp
+      rv[:record_set_resp] = []
       records.each do |record|
         # skip these, as they are handled separately (delegation set?)
         unless (record[:type] == "NS" || record[:type] == "SOA")
-          self.client.change_resource_record_sets({
+          record_resp = self.client.change_resource_record_sets({
             :hosted_zone_id => zone_resp[:hosted_zone][:id],
             :change_batch => {
               :changes => [
@@ -67,8 +77,10 @@ module R53z
               ]
             }
           })
+          rv[:record_set_resp].push(record_resp)
         end
       end
+      return rv
     end
 
     # delete a zone by name
@@ -107,15 +119,24 @@ module R53z
       unless name[-1] == '.'
         name = name + '.'
       end
+
       # dump the record sets
       R53z::JsonFile.write_json(
         path: File.join(dirpath, name),
         data: self.record_list(zone_id))
-      # Dump the zone metadata
+
+      # Dump the zone metadata, plus the delegated set info
+      out = { :hosted_zone => 
+                self.client.get_hosted_zone({ :id => zone_id}).hosted_zone.to_h,
+              :delegation_set => 
+                self.client.get_hosted_zone({:id => zone_id}).delegation_set.to_h
+            }
+
       R53z::JsonFile.write_json(
         path: File.join(dirpath, name + "zoneinfo"),
-        data: self.client.get_hosted_zone({
-          :id => zone_id}).hosted_zone.to_h)
+        data: out)
+        #data: self.client.get_hosted_zone({
+        #  :id => zone_id}).hosted_zone.to_h)
     end
 
     # Restore a zone from the given path. It expects files named
@@ -129,6 +150,7 @@ module R53z
       file = File.join(path, domain)
       info = R53z::JsonFile.read_json(path: file + "zoneinfo")
       records = R53z::JsonFile.read_json(path: file)
+      # create the zone and the record sets
       self.create(:info => info, :records => records)
     end
 
@@ -156,23 +178,30 @@ module R53z
     end
     
     # get details of a delegation set specified by ID, incuding name servers
-    def get_delegation_set(id:)
+    def get_delegation_set(id)
       self.client.get_reusable_delegation_set({
         id: id
       })
     end
 
-    # delete a delegation set by ID
-    def delete_delegation_set(id:)
+    # delete a delegation set by ID or name
+    def delete_delegation_set(id: nil, name: nil)
+      if name and not id
+        id = get_delegation_set_id(name)
+      end
       self.client.delete_reusable_delegation_set({
         id: id
       })
     end
 
-    # Get delegation set ID for the give zone
-    def get_delegation_set_id(name:)
-      zone_id = self.list(:name => name).first[:id]
-      self.client.get_hosted_zone({
+    # Get delegation set ID for the given zone
+    def get_delegation_set_id(name)
+      begin
+        zone_id = self.list(:name => name).first[:id]
+      rescue
+        return nil
+      end
+      return self.client.get_hosted_zone({
         id: zone_id 
       }).delegation_set[:id]
     end

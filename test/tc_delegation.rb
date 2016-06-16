@@ -9,9 +9,11 @@ class TestDelegationSet < Test::Unit::TestCase
     # Create a randomish zone name that doesn't exist already
     @domain = 'test' + Time.now.to_i.to_s + '.com'
     @zoneinfo = {
-      :name => @domain,
-      :config => {
-        :comment => 'R53z test zone'
+      :hosted_zone => {
+        :name => @domain,
+        :config => {
+          :comment => 'R53z test zone'
+        }
       }
     }
     @zonerecords = [{
@@ -42,7 +44,7 @@ class TestDelegationSet < Test::Unit::TestCase
   end
 
   def test_get
-    resp = @client.get_delegation_set(id: @dset.delegation_set[:id])
+    resp = @client.get_delegation_set(@dset.delegation_set[:id])
     # A populated name servers list? XXx needs to eventually compare known-good values
     assert(resp.delegation_set.name_servers.any?)
   end
@@ -63,7 +65,7 @@ class TestDelegationSet < Test::Unit::TestCase
   def test_get_delegation_id
     # Find out the delegation set ID of the test zone
     # and check it agains the value in @dset.
-    del_set_id = @client.get_delegation_set_id(name: @domain)
+    del_set_id = @client.get_delegation_set_id(@domain)
     assert(del_set_id == @dset.delegation_set[:id])
   end
 end
