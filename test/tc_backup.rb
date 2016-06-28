@@ -9,6 +9,8 @@ class TestBackup < Test::Unit::TestCase
     @client = R53z::Client.new('default', creds)
     # Create a randomish zone name that doesn't exist already
     @domain = 'test' + Time.now.to_i.to_s + '.com'
+    @subdomain = 'sub.' + @domain
+    @alias = 'alias.' + @domain
     @zoneinfo = {
       :hosted_zone => {
         :name => @domain,
@@ -17,14 +19,42 @@ class TestBackup < Test::Unit::TestCase
         }
       }
     }
-    @zonerecords = [{
-      :name => @domain,
-      :type => "A",
-      :ttl => 1,
-      :resource_records => [
-        { :value => "198.154.100.100" }
-      ]
-    }]
+    @zonerecords = [
+      {
+        :name => @domain,
+        :type => "A",
+        :ttl => 1,
+        :resource_records => [
+          { :value => "192.168.100.100" },
+          { :value => "192.168.111.111" },
+        ]
+      },
+      {
+        :name => @subdomain,
+        :type => "A",
+        :ttl => 1,
+        :resource_records => [
+          { :value => "192.168.200.200" },
+        ]
+      },
+      {
+        :name => @alias,
+        :type => "CNAME",
+        :ttl => 1,
+        :resource_records => [
+          { :value => @domain },
+        ],
+      },
+      {
+        :name => @domain,
+        :type => "MX",
+        :ttl => 1,
+        :resource_records => [
+          { :value => "10 " + @subdomain },
+        ],
+      }
+    ]
+
     @tmppath = "test/tmp"
   end
 

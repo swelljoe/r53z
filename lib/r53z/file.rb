@@ -4,6 +4,9 @@ require 'json'
 module R53z
   # Returns a hash of the contents of named file
   class JsonFile
+    include Methadone::Main
+    include Methadone::CLILogging
+
     def self.read_json(path:)
       file = File.read(self.fix_path_json(path))
       JSON.parse(file, :symbolize_names => true)

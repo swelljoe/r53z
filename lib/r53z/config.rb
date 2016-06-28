@@ -2,6 +2,8 @@ require 'inifile'
 
 module R53z
   class Config
+    include Methadone::Main
+    include Methadone::CLILogging
     attr_reader :creds
 
     def initialize(config_file=nil)

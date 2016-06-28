@@ -21,7 +21,8 @@ class TestDelegationSet < Test::Unit::TestCase
       :type => "A",
       :ttl => 1,
       :resource_records => [
-        { :value => "198.154.100.100" }
+        { :value => "192.168.100.100" },
+        { :value => "192.168.111.111" },
       ]
     }]
 
@@ -64,7 +65,7 @@ class TestDelegationSet < Test::Unit::TestCase
 
   def test_get_delegation_id
     # Find out the delegation set ID of the test zone
-    # and check it agains the value in @dset.
+    # and check it against the value in @dset.
     del_set_id = @client.get_delegation_set_id(@domain)
     assert(del_set_id == @dset.delegation_set[:id])
   end
