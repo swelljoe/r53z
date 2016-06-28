@@ -40,6 +40,7 @@ Bundler::GemHelper.install_tasks
 
 Rake::TestTask.new do |t|
   t.pattern = 'test/tc_*.rb'
+  t.warning = false # Get rid of purious warnings from the AWS and Methadone libs?
 end
 
 
