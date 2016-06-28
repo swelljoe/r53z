@@ -45,6 +45,16 @@ module R53z
         end
       end
 
+      if options['record-sets']
+        if args.empty?
+          help_now! "List record sets requires one or more zone names"
+        end
+        args.each do |name|
+          sets = @client.record_list(@client.get_zone_id(name))
+          puts JSON.pretty_generate(sets)
+        end
+      end
+
       if options['name-servers']
         dset = @client.get_delegation_set(id: options['name-servers'])
         puts JSON.pretty_generate(dset.delegation_set[:name_servers])

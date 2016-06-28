@@ -206,6 +206,11 @@ module R53z
       }).delegation_set[:id]
     end
 
+    # Get the zone id from name
+    def get_zone_id(name)
+      return self.list(:name => name).first[:id]
+    end
+
     # random string generator helper function
     def random_string(len=16)
       rand(36**len).to_s(36)
