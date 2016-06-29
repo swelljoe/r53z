@@ -17,8 +17,8 @@ class App
   description "Simple CLI to manage, backup, and restore, Route 53 zones"
   #
   # Accept flags via:
-  on("-x", "--export", "Export zones to files in specified directory, optionally specify one or more zones.")
-  on("-r", "--restore", "Restore zone from directory, optionally specify one or more zones.")
+  on("-x DIR", "--export", "Export zones to files in specified directory, optionally specify one or more zones.")
+  on("-r DIR", "--restore", "Restore zone from directory, optionally specify one or more zones.")
   on("-l", "--list", "List name and ID of one or all zones.")
   on("-s", "--record-sets", "List record sets for the given zone.")
   on("-c NAME", "--create", "Create a zone with the given name and optional --comment and --delegation-set.")

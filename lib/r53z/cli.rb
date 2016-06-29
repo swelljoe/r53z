@@ -14,12 +14,14 @@ module R53z
       # XXX Dispatch table seems smarter...can't figure out how to call methods based
       # directly on hash keys at the moment.
       if options[:export]
-        help_now! "Export requires a directory path for zone files" if args.length < 1
+        unless Dir.exists?(File.expand_path(options[:export]))
+          help_now! "Export requires a directory path for zone files."
+        end
         export(:options => options, :args => args)
       end
 
       if options[:restore]
-        if args.empty?
+        unless Dir.exists?(File.expand_path(options[:restore]))
           help_now! "Restore requires a directory containing zone files and optionally one or more zones to restore."
         end
         restore(:options => options, :args => args)
@@ -73,7 +75,7 @@ module R53z
     end
 
     def export(options:, args:)
-      path = args.shift
+      path = File.expand_path(options[:export])
       # If no zones, dump all zones
       zones = []
       # One zone, multiple, or all?
@@ -91,7 +93,7 @@ module R53z
     end
 
     def restore(options:, args:)
-      path = args.shift
+      path = File.expand_path(options[:restore])
       # If no zones, restore all zones in directory
       zones = []
       if args.empty?
