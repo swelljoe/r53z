@@ -4,8 +4,17 @@ require_relative '../lib/r53z'
 
 class TestBackup < Test::Unit::TestCase
   def setup
+    # Insure tmp dir exists
+    @tmppath = "test/tmp"
+    Dir.mkdir(@tmppath) unless Dir.exists?(@tmppath)
+
+    # Insure we have a credentials file configured
+    # XXX Paths shouldn't be hardcoded
+    @secrets = "test/data/secret-credentials"
+    assert(File.exists?(@secrets), "Read/Write tests requires valid credentials in test/data/secret-credentials (all tests will fail)")
+
     # setup a connection to AWS
-    creds = R53z::Config.new()
+    creds = R53z::Config.new(@secrets)
     @client = R53z::Client.new('default', creds)
     # Create a randomish zone name that doesn't exist already
     @domain = 'test' + Time.now.to_i.to_s + '.com'
@@ -54,8 +63,6 @@ class TestBackup < Test::Unit::TestCase
         ],
       }
     ]
-
-    @tmppath = "test/tmp"
   end
 
   def teardown
