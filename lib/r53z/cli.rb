@@ -80,10 +80,13 @@ module R53z
       zones = []
       # One zone, multiple, or all?
       if args.empty?
-        @client.list.each do |zone|
+        @client.list(:delegation_set_id => options['delegation-set']).each do |zone|
           zones.push(zone[:name])
         end
       else
+        if options['delegation-set']
+          puts "--delegation-set is overridden when one or more zones are provided"
+        end
         zones = args
       end
 
