@@ -6,7 +6,7 @@ class TestDelegationSet < Test::Unit::TestCase
     # Insure we have a credentials file configured
     # XXX Paths shouldn't be hardcoded
     @secrets = "test/data/secret-credentials"
-    assert(File.exists?(@secrets), "Read/Write tests requires valid credentials in test/data/secret-credentials (all tests will fail)")
+    assert(File.exists?(@secrets), "Read/Write tests require valid credentials in test/data/secret-credentials (all tests will fail)")
 
     @creds  = R53z::Config.new(@secrets)
     @client = R53z::Client.new('default', @creds)

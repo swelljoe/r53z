@@ -23,22 +23,24 @@ module R53z
       end
 
       rv = []
-      zones.each do |zone|
-        if name
-          unless name[-1] == '.'
-            name = name + '.'
+      if zones
+        zones.each do |zone|
+          if name
+            unless name[-1] == '.'
+              name = name + '.'
+            end
+            unless name == zone[:name]
+              next
+            end
           end
-          unless name == zone[:name]
-            next
-          end
+          rv.push({:name => zone[:name], :id => zone[:id]})
         end
-        rv.push({:name => zone[:name], :id => zone[:id]})
       end
       rv
     end
 
     # Create zone with record(s) from an info and records hash
-    def create(info:, records:)
+    def create(info:, records: nil)
       rv = {} # pile up the responses in a single hash
       #if self.list(info[:name]).any?
       #  error(info[:name] + "exists")
@@ -47,37 +49,39 @@ module R53z
       # hosted_zone_config on create/restore. argh.
       # XXX: also, private_zone is not accepted here for some reason
       zone = info[:hosted_zone]
-      zone_data = {
-        :name => zone[:name],
-        :caller_reference => 'r53z-create-' + self.random_string,
-        :hosted_zone_config => {
-          :comment => zone[:config][:comment]
-        }
-      }
-      # command line overrides everything else
-      if options['delegation-set']
-        zone_data[:delegation_set_id] = options['delegation-set']
-      elsif info[:delegation_set] and info[:delegation_set][:id]
+      # Populate a zone_data hash with options for zone creation
+      zone_data = {}
+      zone_data[:name] = zone[:name]
+      zone_data[:caller_reference] = 'r53z-create-' + self.random_string
+      if zone[:config] and zone[:config][:comment]
+        zone_data[:hosted_zone_config] = {}
+        zone_data[:hosted_zone_config][:comment] = zone[:config][:comment]
+      end
+      if info[:delegation_set] and info[:delegation_set][:id]
         zone_data[:delegation_set_id] = info[:delegation_set][:id]
       end
       zone_resp = self.client.create_hosted_zone(zone_data)
       rv[:hosted_zone_resp] = zone_resp
+
       rv[:record_set_resp] = []
-      records.each do |record|
-        # skip these, as they are handled separately (delegation set?)
-        unless (record[:type] == "NS" || record[:type] == "SOA")
-          record_resp = self.client.change_resource_record_sets({
-            :hosted_zone_id => zone_resp[:hosted_zone][:id],
-            :change_batch => {
-              :changes => [
-                {
-                  :action => "CREATE",
-                  :resource_record_set => record
-                }
-              ]
-            }
-          })
-          rv[:record_set_resp].push(record_resp)
+      # Optionally populate records
+      if records
+        records.each do |record|
+          # skip these, as they are handled separately (delegation set?)
+          unless (record[:type] == "NS" || record[:type] == "SOA")
+            record_resp = self.client.change_resource_record_sets({
+              :hosted_zone_id => zone_resp[:hosted_zone][:id],
+              :change_batch => {
+                :changes => [
+                  {
+                    :action => "CREATE",
+                    :resource_record_set => record
+                  }
+                ]
+              }
+            })
+            rv[:record_set_resp].push(record_resp)
+          end
         end
       end
       return rv
@@ -94,7 +98,7 @@ module R53z
     # delete all of the resource record sets in a zone (this is required to delete
     # a zone
     def delete_all_rr_sets(zone_id)
-      self.record_list(zone_id).reject do |rs|
+      self.list_records(zone_id).reject do |rs|
         (rs[:type] == "NS" || rs[:type] == "SOA")
       end.each do |record_set|
         self.client.change_resource_record_sets({
@@ -123,7 +127,7 @@ module R53z
       # dump the record sets
       R53z::JsonFile.write_json(
         path: File.join(dirpath, name),
-        data: self.record_list(zone_id))
+        data: self.list_records(zone_id))
 
       # Dump the zone metadata, plus the delegated set info
       out = { :hosted_zone => 
@@ -154,7 +158,7 @@ module R53z
       self.create(:info => info, :records => records)
     end
 
-    def record_list(zone_id)
+    def list_records(zone_id)
       records = self.client.list_resource_record_sets(hosted_zone_id: zone_id)
       rv = []
       records[:resource_record_sets].each do |record|

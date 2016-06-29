@@ -11,7 +11,7 @@ class TestBackup < Test::Unit::TestCase
     # Insure we have a credentials file configured
     # XXX Paths shouldn't be hardcoded
     @secrets = "test/data/secret-credentials"
-    assert(File.exists?(@secrets), "Read/Write tests requires valid credentials in test/data/secret-credentials (all tests will fail)")
+    assert(File.exists?(@secrets), "Read/Write tests require valid credentials in test/data/secret-credentials (all tests will fail)")
 
     # setup a connection to AWS
     creds = R53z::Config.new(@secrets)
@@ -121,6 +121,33 @@ class TestBackup < Test::Unit::TestCase
     # Restore it from file
     @client.restore(@tmppath, @domain)
     assert(@client.list(:name => @domain))
+  end
+
+  def test_records
+    # Test whether we have the records we should after creation
+    # Create zone at AWS
+    @client.create(info: @zoneinfo, records: @zonerecords)
+    assert(@client.list(name: @domain).any?, "Have zone " + @domain)
+    records = @client.list_records(@client.get_zone_id(@domain))
+    # This looks hairy, but it's just checking within the records for
+    # stuff from the zone defined above, so we know all the data got
+    # into place.
+    assert(records.detect do
+      |rec| rec[:name] == @domain + '.' and rec[:type] == "A" and
+        rec[:resource_records].include?(:value => "192.168.100.100")
+    end, "Found A record for " + @domain)
+    assert(records.detect do
+      |rec| rec[:name] == @subdomain + '.' and rec[:type] == "A" and
+        rec[:resource_records].include?(:value => "192.168.200.200")
+    end, "Found A record for " + @subdomain)
+    assert(records.detect do
+      |rec| rec[:name] == @alias + '.' and rec[:type] == "CNAME" and
+        rec[:resource_records].include?(:value => @domain)
+    end, "Found CNAME record for " + @alias)
+    assert(records.detect do
+      |rec| rec[:name] == @domain + '.' and rec[:type] == "MX" and
+        rec[:resource_records].include?(:value => "10 " + @subdomain)
+    end, "Found MX record for " + @domain)
   end
 end
 
