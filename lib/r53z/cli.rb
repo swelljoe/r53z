@@ -11,7 +11,7 @@ module R53z
       creds = R53z::Config.new(config_file)
       @client = R53z::Client.new(section, creds)
 
-      # XXX Dispath table seems smarter...can't figure out how to call methods based
+      # XXX Dispatch table seems smarter...can't figure out how to call methods based
       # directly on hash keys at the moment.
       if options[:export]
         help_now! "Export requires a directory path for zone files" if args.length < 1
