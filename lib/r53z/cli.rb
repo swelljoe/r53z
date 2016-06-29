@@ -112,8 +112,10 @@ module R53z
         end
       end
 
+      delegation = options['delegation-set'] or nil
+
       zones.each do |zone|
-        @client.restore(path, zone)
+        @client.restore(path, zone, delegation)
       end
     end
 

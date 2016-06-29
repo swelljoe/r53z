@@ -145,7 +145,7 @@ module R53z
 
     # Restore a zone from the given path. It expects files named
     # zone.zoneinfo.json and zone.json
-    def restore(path, domain)
+    def restore(path, domain, delegation = nil)
       # normalize domain
       unless domain[-1] == '.'
         domain = domain + '.'
@@ -153,6 +153,12 @@ module R53z
       # Load up the zone info file
       file = File.join(path, domain)
       info = R53z::JsonFile.read_json(path: file + "zoneinfo")
+      if delegation
+        # inject the specified delegation set into info, overriding file
+        info[:delegation_set] = {:id => delegation }
+      end
+      require 'pp'
+      pp info
       records = R53z::JsonFile.read_json(path: file)
       # create the zone and the record sets
       self.create(:info => info, :records => records)
