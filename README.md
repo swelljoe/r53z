@@ -36,23 +36,28 @@ Usage: r53z [options] [args...]
 
 Simple CLI to manage, backup, and restore, Route 53 zones
 
-v0.1.0
+v0.2.0
 
 Options:
     -h, --help                       Show command line help
-    -x, --export                     Export zones to files in specified directory, optionally specify one or more zones
-    -r, --restore                    Restore zone from directory, optionally specify one or more zones
-    -l, --list                       List name and ID of one or all zones
+    -x, --export                     Export zones to files in specified directory, optionally specify one or more zones.
+    -r, --restore                    Restore zone from directory, optionally specify one or more zones.
+    -l, --list                       List name and ID of one or all zones.
+    -s, --record-sets                List record sets for the given zone.
+    -c, --create NAME                Create a zone with the given name and optional --comment and --delegation-set.
+    -n, --comment COMMENT            Optional comment when creating a zone.
     -d, --delete                     Delete one or more zone(s) by name (WARNING: No confirmation!)
-    -c, --credentials                File containing credentials information
-    -u, --section                    Section (user) in the credentials file to use
-    -g, --delegation-set ID          Delegation set ID to use for various operations
-    -t, --list-delegation-sets       List all delegation sets
-    -n, --name-servers ID            List name servers for delegation set
+    -C, --credentials                File containing credentials information.
+    -u, --section                    Section (user) in the credentials file to use.
+    -g, --delegation-set ID          Delegation set ID to use for various operations.
+    -t, --list-delegation-sets       List delegation set for named zone, or all sets if no zone specified.
+    -D, --delete-delegation-sets     Delete one or more delegation sets by ID (WARNING: No confirmation!
+    -N, --name-servers ID            List name servers for delegation set.
         --version                    Show help/version info
         --log-level LEVEL            Set the logging level
                                      (debug|info|warn|error|fatal)
                                      (Default: info)
+
 ```
 
 ### Command Line Options
@@ -89,6 +94,16 @@ $ r53z --restore /home/joe/zones swelljoe.com
 
 List hosted zones. List can be restricted to just the listed zones, or to a given delegation set. Output is JSON encoded, and will contain the name and ID of each zone. If no zones are specified, all zones will be listed.
 
+#### --create|-c NAME [--comment COMMENT] [--delegation-set ID]
+
+Create zone of the NAME provided. An optional command an delegation set ID may be provided.
+
+##### Example
+
+```
+$ r53z --create swelljoe.com --comment "My domain"
+```
+
 #### --delete|-d {zone}
 
 Delete one or more zones. Argument is the name of the zone, or zones, to delete. This command deletes the record sets for the zone first, and then deletes the zone itself (a zone with records cannot be deleted). There is no confirmation step for this option.
@@ -124,4 +139,3 @@ This will create a few test zones in your account, but unless something goes wro
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/swelljoe/r53z.
-
