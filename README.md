@@ -4,6 +4,8 @@ A simple CLI, REPL, and library for managing Route 53. It's primary purpose is t
 
 ## Installation
 
+r53z currently requires version 2.1.0 of Ruby, or greater (due to use of named method arguments without default values).
+
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -36,7 +38,7 @@ Usage: r53z [options] [args...]
 
 Simple CLI to manage, backup, and restore, Route 53 zones
 
-v0.2.0
+v0.3.0
 
 Options:
     -h, --help                       Show command line help
@@ -117,6 +119,39 @@ $ r53z --delete swelljoe.com virtualmin.com
 #### --credentials|-c {path/filename}
 
 Specify the credentials configuration file on the command line. The file must be an INI file. By default, it will look for a file in ~/.aws/credentials (which is common across several AWS management tools). You can use the `--section` option to choose what section of the file to use.
+
+## More Examples
+
+### Working With Delegation Sets
+
+Finding the delegation set of a zone, and backing up all zones that share that delegation set:
+
+```
+$ r53z --list-delegation-sets swelljoe.com
+{
+  "id": "/delegationset/NKXKQ56JI1ZGT",
+  "caller_reference": "r53z-create-del-set-hh0xf3dm0xp7nuvt",
+  "name_servers": [
+    "ns-885.awsdns-46.net",
+    "ns-2016.awsdns-60.co.uk",
+    "ns-417.awsdns-52.com",
+    "ns-1299.awsdns-34.org"
+  ]
+}
+$ r53z --export ~/dumps --delegation-set "/delegationset/NKXKQ56JI1ZGT"
+```
+
+Creating a new zone with an existing delegation set:
+
+```
+$ r53z --create swelljoe.com --comment "dootdoot" --delegation-set "/delegationset/NKXKQ56JI1ZGT"
+```
+
+Restoring a zone into a specific delegation set (this will override the delegation set specified in the dump file):
+
+```
+$ r53z --restore ~/dumps swelljoe.com --delegation-set "/delegationset/NKXKQ56JI1ZGT"
+```
 
 ## Development
 
