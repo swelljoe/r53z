@@ -3,7 +3,12 @@ require_relative "../lib/r53z"
 
 class TestDelegationSet < Test::Unit::TestCase
   def setup
-    @creds  = R53z::Config.new()
+    # Insure we have a credentials file configured
+    # XXX Paths shouldn't be hardcoded
+    @secrets = "test/data/secret-credentials"
+    assert(File.exists?(@secrets), "Read/Write tests requires valid credentials in test/data/secret-credentials (all tests will fail)")
+
+    @creds  = R53z::Config.new(@secrets)
     @client = R53z::Client.new('default', @creds)
 
     # Create a randomish zone name that doesn't exist already
@@ -41,13 +46,13 @@ class TestDelegationSet < Test::Unit::TestCase
 
   def test_list
     resp = @client.list_delegation_sets
-    assert(resp.any?)
+    assert(resp.any?, "Able to list delegation sets")
   end
 
   def test_get
     resp = @client.get_delegation_set(@dset.delegation_set[:id])
     # A populated name servers list? XXx needs to eventually compare known-good values
-    assert(resp.delegation_set.name_servers.any?)
+    assert(resp.delegation_set.name_servers.any?, "Able to fetch name servers from delegation set")
   end
 
   def test_delete
@@ -57,7 +62,7 @@ class TestDelegationSet < Test::Unit::TestCase
     resp = @client.delete_delegation_set({
       id: del_set_id
     })
-    assert(resp.empty?)
+    assert(resp.empty?, "Able to delete delegation set by ID")
     # XXX this throws an exception, but, we need to really detect deletion,
     # aside from just an empty reply, I think?
     #assert(@client.get_delegation_set(id: del_set_id).empty?)
@@ -67,6 +72,6 @@ class TestDelegationSet < Test::Unit::TestCase
     # Find out the delegation set ID of the test zone
     # and check it against the value in @dset.
     del_set_id = @client.get_delegation_set_id(@domain)
-    assert(del_set_id == @dset.delegation_set[:id])
+    assert(del_set_id == @dset.delegation_set[:id], "Created delegation set ID is right")
   end
 end

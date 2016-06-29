@@ -39,9 +39,17 @@ module R53z
       end
 
       if options['list-delegation-sets']
-        sets = @client.list_delegation_sets
-        sets.each do |set|
-          puts JSON.pretty_generate(set.to_h)
+        if args.empty?
+          sets = @client.list_delegation_sets
+          sets.each do |set|
+            puts JSON.pretty_generate(set.to_h)
+          end
+        else
+          args.each do |name|
+            dset_id = @client.get_delegation_set_id(name)
+            dset = @client.get_delegation_set(dset_id)
+            puts JSON.pretty_generate(dset.delegation_set.to_h)
+          end
         end
       end
 
@@ -56,7 +64,7 @@ module R53z
       end
 
       if options['name-servers']
-        dset = @client.get_delegation_set(id: options['name-servers'])
+        dset = @client.get_delegation_set(options['name-servers'])
         puts JSON.pretty_generate(dset.delegation_set[:name_servers])
       end
     end

@@ -25,7 +25,7 @@ class App
   on("-c", "--credentials", "File containing credentials information")
   on("-u", "--section", "Section (user) in the credentials file to use")
   on("-g ID", "--delegation-set", "Delegation set ID to use for various operations")
-  on("-t", "--list-delegation-sets", "List all delegation sets")
+  on("-t", "--list-delegation-sets", "List delegation set for named zone, or all sets if no zone specified")
   on("-n ID", "--name-servers", "List name servers for delegation set")
   # args greedily grabs any files or zones listed after the options
   arg(:args, :any)
