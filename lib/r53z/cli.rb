@@ -14,15 +14,18 @@ module R53z
       # XXX Dispatch table seems smarter...can't figure out how to call methods based
       # directly on hash keys at the moment.
       if options[:export]
+        unless options[:export].is_a? String
+          exit_now! "Export must have a valid directory path for dump files."
+        end
         unless Dir.exists?(File.expand_path(options[:export]))
-          help_now! "Export requires a directory path for zone files."
+          exit_now! "Directory " + options[:export] + " does not exist."
         end
         export(:options => options, :args => args)
       end
 
       if options[:restore]
         unless Dir.exists?(File.expand_path(options[:restore]))
-          help_now! "Restore requires a directory containing zone files and optionally one or more zones to restore."
+          exit_now! "Restore requires a directory containing zone files and optionally one or more zones to restore."
         end
         restore(:options => options, :args => args)
       end
@@ -37,7 +40,7 @@ module R53z
 
       if options[:delete]
         if args.empty?
-          help_now! "Delete requires one or more zone names."
+          exit_now! "Delete requires one or more zone names."
         end
         args.each do |name|
           if @client.list(name: name).any?
@@ -54,7 +57,7 @@ module R53z
 
       if options['delete-delegation-sets']
         if args.empty?
-          help_now! "Delete delegation sets requires one or more delegation set IDs."
+          exit_now! "Delete delegation sets requires one or more delegation set IDs."
         end
         args.each do |id|
           @client.delete_delegation_set(id: id)
@@ -63,7 +66,7 @@ module R53z
 
       if options['record-sets']
         if args.empty?
-          help_now! "List record sets requires one or more zone names."
+          exit_now! "List record sets requires one or more zone names."
         end
         record_sets(args)
       end
