@@ -55,9 +55,13 @@ module R53z
         delegation_sets(args)
       end
 
+      if options['create-delegation-sets']
+        create_delegation(args)
+      end
+
       if options['delete-delegation-sets']
         if args.empty?
-          exit_now! "Delete delegation sets requires one or more delegation set IDs."
+          exit_now! "Deleting delegation sets requires one or more delegation set IDs."
         end
         args.each do |id|
           @client.delete_delegation_set(id: id)
@@ -164,6 +168,30 @@ module R53z
           else
             exit_now!("Could not find a delegation set for " + name)
           end
+        end
+      end
+    end
+
+    def create_delegation(args)
+      # further validation
+      zones = []
+      # No zones specified, create a new unassociated delegation set
+      if args.empty?
+        @client.create_delegation_set
+      end
+
+      args.each do |name|
+        # Make sure at least one specified zone exists
+        if @client.list(name: name)
+          zones.push(name)
+        else
+          puts "Couldn't locate zone " + name unless @client.list(name)
+        end
+        if zones.empty?
+          exit_now! "Couldn't find any of the specified zones."
+        end
+        zones.each do |zone|
+          @client.create_delegation_set(@client.get_zone_id(zone))
         end
       end
     end
