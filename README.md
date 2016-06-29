@@ -109,6 +109,18 @@ After checking out the repo, run `bin/setup` to install dependencies. You can al
 
 To install this gem onto your local machine, run `bundle exec rake install`.
 
+#### Running Tests
+
+To run the full test suite, you need a read/write capable account. There must be a configuration file in `test/data/secret-credentials` containing a `[default]` section with your keys. The format of this file is, as above, a .ini file.
+
+To run all tests:
+
+```
+$ rake test
+```
+
+This will create a few test zones in your account, but unless something goes wrong during the test, they will be removed immediately after, never triggering billing from Amazon. The zones will have somewhat randomly generated names, so they should never clash with existing names (but you may wish to create a non-production account just for testing).
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/swelljoe/r53z.
