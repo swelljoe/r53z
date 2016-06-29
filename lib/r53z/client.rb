@@ -157,8 +157,6 @@ module R53z
         # inject the specified delegation set into info, overriding file
         info[:delegation_set] = {:id => delegation }
       end
-      require 'pp'
-      pp info
       records = R53z::JsonFile.read_json(path: file)
       # create the zone and the record sets
       self.create(:info => info, :records => records)
