@@ -16,11 +16,13 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
+Or install it yourself as (it's on rubygems.org, but installation of the binary isn't working right yet, will be fixed sooon):
 
     $ gem install r53z
 
 ## Usage
+
+**NOTE:** Don't get too attached to the current CLI options. I'm rewriting the option parser to use sub-commands in the near future. So, if you love it like it is (surely, nobody could love it like it is), you'll need to lock in a version that still has this parser.
 
 Configure a credentials file in `~/.aws/credentials` (this should be an INI file; same as several other AWS utilities expect). It'll look something like this:
 
