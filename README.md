@@ -45,12 +45,12 @@ region=us-east-1
 
 You can use the `--section` option to choose which section to use from the credentials file, and the credentials file can be specified with the `--credentials` option. Region is irrelevant with Route 53, but the aws-sdk weirdly still requires it be present.
 
-```
+```sh
 Usage: r53z [options] [args...]
 
 Simple CLI to manage, backup, and restore, Route 53 zones
 
-v0.3.0
+v0.3.2
 
 Options:
     -h, --help                       Show command line help
@@ -86,7 +86,7 @@ Two files will be generated in the directory specified, one for the zone metadat
 
 ##### Example
 
-```
+```sh
 $ r53z --export /home/joe/zones swelljoe.com
 ```
 
@@ -100,7 +100,7 @@ If `--delegation-set` is specified on the command line, it will override the del
 
 ##### Example
 
-```
+```sh
 $ r53z --restore /home/joe/zones swelljoe.com
 ```
 
@@ -114,7 +114,7 @@ Create zone of the NAME provided. An optional command an delegation set ID may b
 
 ##### Example
 
-```
+```sh
 $ r53z --create swelljoe.com --comment "My domain"
 ```
 
@@ -124,7 +124,7 @@ Delete one or more zones. Argument is the name of the zone, or zones, to delete.
 
 ##### Example
 
-```
+```sh
 $ r53z --delete swelljoe.com virtualmin.com
 ```
 
@@ -138,7 +138,7 @@ Specify the credentials configuration file on the command line. The file must be
 
 Finding the delegation set of a zone, and backing up all zones that share that delegation set:
 
-```
+```sh
 $ r53z --list-delegation-sets swelljoe.com
 {
   "id": "/delegationset/NKXKQ56JI1ZGT",
@@ -155,13 +155,13 @@ $ r53z --export ~/dumps --delegation-set "/delegationset/NKXKQ56JI1ZGT"
 
 Creating a new zone with an existing delegation set:
 
-```
+```sh
 $ r53z --create swelljoe.com --comment "dootdoot" --delegation-set "/delegationset/NKXKQ56JI1ZGT"
 ```
 
 Restoring a zone into a specific delegation set (this will override the delegation set specified in the dump file):
 
-```
+```sh
 $ r53z --restore ~/dumps swelljoe.com --delegation-set "/delegationset/NKXKQ56JI1ZGT"
 ```
 
@@ -177,7 +177,7 @@ To run the full test suite, you need a read/write capable account. There must be
 
 To run all tests:
 
-```
+```sh
 $ rake test
 ```
 
