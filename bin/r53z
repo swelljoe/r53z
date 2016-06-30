@@ -29,7 +29,7 @@ class App
   on("-g ID", "--delegation-set", "Delegation set ID to use for various operations.")
   on("-t", "--list-delegation-sets", "List delegation set for named zone, or all sets if no zone specified.")
   on("-S", "--create-delegation-sets", "Create one or more delegation sets, optionally associated with listed zones.")
-  on("-D", "--delete-delegation-sets", "Delete one or more delegation sets by ID (WARNING: No confirmation!")
+  on("-D", "--delete-delegation-sets", "Delete one or more delegation sets by ID (WARNING: No confirmation!)")
   on("-N ID", "--name-servers", "List name servers for delegation set.")
   # args greedily grabs any files or zones listed after the options
   arg(:args, :any)

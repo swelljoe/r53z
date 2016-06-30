@@ -13,30 +13,47 @@ module R53z
     end
 
     # list one or all zones by name and ID
+    # XXX Should ideally be a lazy iterator, need to read up on how that's
+    # done in Ruby.
     def list(name: nil, delegation_set_id: nil)
-      begin
-        zones = self.client.list_hosted_zones(
-          delegation_set_id: delegation_set_id
-          )['hosted_zones']
-      rescue Aws::Route53::Errors::ServiceError
-        error "Failed to list zones" # XXX How do we get AWS error message out of it?
-      end
-
       rv = []
-      if zones
-        zones.each do |zone|
-          if name
-            unless name[-1] == '.'
-              name = name + '.'
-            end
-            unless name == zone[:name]
-              next
-            end
+      if name
+        name = name.to_s + "." unless name[-1] == '.'
+        zone = self.client.list_hosted_zones_by_name({
+          dns_name: name,
+          max_items: 1
+        })
+        # Response will always contain some zone, even if the one
+        # we want doesn't exist...so, if no match, return empty set
+        if zone.hosted_zones.first and zone.hosted_zones.first.name == name
+          rv.push({
+            :name => zone.hosted_zones.first.name,
+            :id =>   zone.hosted_zones.first.id,
+          })
+        end
+      else
+        is_truncated = true
+        marker = nil
+        # If more than 100, will be divided into sets, so we have to
+        # poll multiple times
+        while is_truncated
+          if marker
+            resp = self.client.list_hosted_zones(
+              delegation_set_id: delegation_set_id,
+              marker: marker,
+              )
+          else
+            resp = self.client.list_hosted_zones(
+              delegation_set_id: delegation_set_id)
           end
-          rv.push({:name => zone[:name], :id => zone[:id]})
+          is_truncated = resp['is_truncated']
+          marker = resp['next_marker']
+          resp['hosted_zones'].each do |z|
+            rv.push({:name => z[:name], :id => z[:id]})
+          end
         end
       end
-      rv
+      return rv
     end
 
     # Create zone with record(s) from an info and records hash

@@ -152,6 +152,10 @@ module R53z
       @client.create(info: zone_data)
     end
 
+    def add_record(options, args)
+      # Populate record set hash
+    end
+
     def delegation_sets(args)
       # show them all
       if args.empty?
