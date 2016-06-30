@@ -16,10 +16,20 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as (it's on rubygems.org, but installation of the binary isn't working right yet, will be fixed sooon):
+Run the command with:
+
+    $ bundle exec bin/r53z
+
+And, you can run a REPL with:
+
+    $ bundle exec bin/console
+
+A `client` object has methods for most common tasks with Route 53, maybe it easy to script with. The REPL is a little clumsy on startup, as it uses the binding method, which gives some clunky output, but it allows setting up both the credentials and client automatically.
+
+Or install it yourself as (the gem installs an r53z executable in the path, but not the `console` REPL):
 
     $ gem install r53z
-
+    
 ## Usage
 
 **NOTE:** Don't get too attached to the current CLI options. I'm rewriting the option parser to use sub-commands in the near future. So, if you love it like it is (surely, nobody could love it like it is), you'll need to lock in a version that still has this parser.
@@ -172,6 +182,9 @@ $ rake test
 ```
 
 This will create a few test zones in your account, but unless something goes wrong during the test, they will be removed immediately after, never triggering billing from Amazon. The zones will have somewhat randomly generated names, so they should never clash with existing names (but you may wish to create a non-production account just for testing).
+
+There is one extra tests file called disabled_tc_101.rb. It is disabled, by default, because it takes quite a while to run, especially on a slow link. It produces 101 zones, in order to exercise the list truncation handling code for sets over 100
+zones.
 
 ## Contributing
 
