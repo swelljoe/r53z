@@ -85,8 +85,10 @@ class Test101 < Test::Unit::TestCase
   end
 
   def test_1500
-    # create 101 unique zones
+    # create 1500 unique zones
     @domains.each do |domain|
+      # Avoid the rate throttling? (five per second limit total per account)
+      sleep 0.3
       @client.create(info: domain[:info], records: domain[:records])
     end
     # Check for some of the zones existence

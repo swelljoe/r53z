@@ -87,6 +87,7 @@ class Test101 < Test::Unit::TestCase
   def test_101
     # create 101 unique zones
     @domains.each do |domain|
+      sleep 0.3 # Avoid hitting rate limit
       @client.create(info: domain[:info], records: domain[:records])
     end
     # Check for some of the zones existence
