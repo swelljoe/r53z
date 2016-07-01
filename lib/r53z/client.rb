@@ -1,5 +1,5 @@
 module R53z
-  class Client 
+  class Client
     include Methadone::Main
     include Methadone::CLILogging
     attr_accessor :client
@@ -42,6 +42,9 @@ module R53z
               delegation_set_id: delegation_set_id,
               marker: marker,
               )
+            # R53 imposes a 5 request per second limit
+            # Could catch "throttling"/"rate exceeded" error and retry
+            sleep 0.3
           else
             resp = self.client.list_hosted_zones(
               delegation_set_id: delegation_set_id)
@@ -59,11 +62,11 @@ module R53z
     # Create zone with record(s) from an info and records hash
     def create(info:, records: nil)
       rv = {} # pile up the responses in a single hash
-      #if self.list(info[:name]).any?
-      #  error(info[:name] + "exists")
+      #if self.list(name: info[:name]).any?
+      #  error(info[:name].to_s + " already exists")
       #end
       # XXX: AWS sends out a data structure with config:, but expects
-      # hosted_zone_config on create/restore. argh.
+      # hosted_zone_config: on create/restore. argh.
       # XXX: also, private_zone is not accepted here for some reason
       zone = info[:hosted_zone]
       # Populate a zone_data hash with options for zone creation
@@ -84,7 +87,7 @@ module R53z
       # Optionally populate records
       if records
         records.each do |record|
-          # skip these, as they are handled separately (delegation set?)
+          # skip these, as they are handled separately (delegation sets)
           unless (record[:type] == "NS" || record[:type] == "SOA")
             record_resp = self.client.change_resource_record_sets({
               :hosted_zone_id => zone_resp[:hosted_zone][:id],
@@ -104,12 +107,18 @@ module R53z
       return rv
     end
 
-    # delete a zone by name
-    def delete(name)
-      # get the ID
-      zone_id = self.list(:name => name).first[:id]
-      self.delete_all_rr_sets(zone_id)
-      client.delete_hosted_zone(:id => zone_id)
+    # delete a zone by name, optionally by ID
+    def delete(name, id: nil)
+      # if we got both, demand nil for name, because AWS allows multiples
+      if name and id
+        raise "Name should be nil when id is provided."
+      end
+      unless id
+        id = self.list(:name => name).first[:id]
+      end
+      # Can't delete unless empty of record sets
+      self.delete_all_rr_sets(id)
+      client.delete_hosted_zone(:id => id)
     end
 
     # delete all of the resource record sets in a zone (this is required to delete
@@ -130,7 +139,7 @@ module R53z
       end
     end
 
-    # dump a zone to a direcory. Will generate two files; a zoneinfo file and a 
+    # dump a zone to a direcory. Will generate two files; a zoneinfo file and a
     # records file.
     def dump(dirpath, name)
       # Get the ID
@@ -147,17 +156,15 @@ module R53z
         data: self.list_records(zone_id))
 
       # Dump the zone metadata, plus the delegated set info
-      out = { :hosted_zone => 
+      out = { :hosted_zone =>
                 self.client.get_hosted_zone({ :id => zone_id}).hosted_zone.to_h,
-              :delegation_set => 
+              :delegation_set =>
                 self.client.get_hosted_zone({:id => zone_id}).delegation_set.to_h
             }
 
       R53z::JsonFile.write_json(
         path: File.join(dirpath, name + "zoneinfo"),
         data: out)
-        #data: self.client.get_hosted_zone({
-        #  :id => zone_id}).hosted_zone.to_h)
     end
 
     # Restore a zone from the given path. It expects files named
@@ -201,7 +208,7 @@ module R53z
       resp = self.client.list_reusable_delegation_sets({})
       return resp.delegation_sets
     end
-    
+
     # get details of a delegation set specified by ID, incuding name servers
     def get_delegation_set(id)
       self.client.get_reusable_delegation_set({
@@ -227,7 +234,7 @@ module R53z
         return nil
       end
       return self.client.get_hosted_zone({
-        id: zone_id 
+        id: zone_id
       }).delegation_set[:id]
     end
 
@@ -242,4 +249,3 @@ module R53z
     end
   end
 end
-
