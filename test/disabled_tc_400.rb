@@ -6,7 +6,7 @@ require_relative '../lib/r53z'
 # currently not expected to work. It'll let us know when we handle 100+
 # zone lists correctly.
 
-class Test101 < Test::Unit::TestCase
+class Test400 < Test::Unit::TestCase
   def setup
     # Insure we have a credentials file configured
     # XXX Paths shouldn't be hardcoded
@@ -19,7 +19,7 @@ class Test101 < Test::Unit::TestCase
     # Create a list of 101 zone names that don't exist already
     @domains = []
     @names = [] # A list of zones for teardown
-    for i in 1..1501
+    for i in 1..401
       @domain = i.to_s + '-test' + Time.now.to_i.to_s + '.com.' 
       @names.push(@domain)
       @subdomain = 'sub.' + @domain
@@ -84,8 +84,8 @@ class Test101 < Test::Unit::TestCase
     end
   end
 
-  def test_1500
-    # create 1500 unique zones
+  def test_400
+    # create 400 unique zones
     @domains.each do |domain|
       # Avoid the rate throttling? (five per second limit total per account)
       sleep 0.3
@@ -97,10 +97,10 @@ class Test101 < Test::Unit::TestCase
     sleep 60
     assert(@client.list(name: @names[0]).any?, @names[0] + " exists.")
     assert(@client.list(name: @names[99]).any?, @names[99] + " exists.")
-    assert(@client.list(name: @names[1000]).any?, @names[1000] + " exists.")
+    assert(@client.list(name: @names[400]).any?, @names[400] + " exists.")
     testzones = @client.list # this is a bad idea on a real AWS account
     count = testzones.select {|z| @names.include?(z[:name])}.length
-    assert(count == 1500, "We can list more than 1500 zones.")
+    assert(count == 400, "We can list more than 400 zones.")
   end
 end
 
