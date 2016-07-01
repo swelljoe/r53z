@@ -79,7 +79,7 @@ class Test400 < Test::Unit::TestCase
         @client.delete(name)
         # delete the delegation set once zone is gone
         @client.delete_delegation_set(id: dset_id) if dset_id
-        sleep 0.3
+        sleep 1
       end
     end
   end
@@ -88,7 +88,7 @@ class Test400 < Test::Unit::TestCase
     # create 400 unique zones
     @domains.each do |domain|
       # Avoid the rate throttling? (five per second limit total per account)
-      sleep 0.3
+      sleep 1 # Gah! sleeping 1 second makes the test take about 20 mins.
       @client.create(info: domain[:info], records: domain[:records])
     end
     # Check for some of the zones existence
@@ -96,11 +96,11 @@ class Test400 < Test::Unit::TestCase
     # numbers of zones? This test intermittently fails without a delay.
     sleep 60
     assert(@client.list(name: @names[0]).any?, @names[0] + " exists.")
-    sleep 0.3
+    sleep 1
     assert(@client.list(name: @names[99]).any?, @names[99] + " exists.")
-    sleep 0.3
+    sleep 1
     assert(@client.list(name: @names[400]).any?, @names[400] + " exists.")
-    sleep 0.3
+    sleep 1
     testzones = @client.list # this is a bad idea on a real AWS account
     count = testzones.select {|z| @names.include?(z[:name])}.length
     assert(count == 400, "We can list more than 400 zones.")
