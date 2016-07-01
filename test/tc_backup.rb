@@ -90,7 +90,7 @@ class TestBackup < Test::Unit::TestCase
   def test_delete
     # create a zone to delete
     @client.create(info: @zoneinfo, records: @zonerecords)
-    assert(@client.list(:name => @domain).any?) # exists? 
+    assert(@client.list(:name => @domain).any?) # exists?
     @client.delete(@domain)
     assert(@client.list(:name => @domain).empty?) # now gone?
   end
@@ -117,7 +117,7 @@ class TestBackup < Test::Unit::TestCase
     @client.delete(@domain)
     @client.delete_delegation_set(id: dset_id) if dset_id
     sleep 1
-    assert_equal(@client.list(:name => @domain), []) 
+    assert_equal(@client.list(:name => @domain), [])
     # Restore it from file
     @client.restore(@tmppath, @domain)
     assert(@client.list(:name => @domain))
@@ -150,4 +150,3 @@ class TestBackup < Test::Unit::TestCase
     end, "Found MX record for " + @domain)
   end
 end
-

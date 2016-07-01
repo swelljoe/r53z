@@ -19,7 +19,7 @@ class Test101 < Test::Unit::TestCase
     # Create a list of 101 zone names that don't exist already
     @domains = []
     @names = [] # A list of zones for teardown
-    for i in 1..101
+    for i in 1..1501
       @domain = i.to_s + '-test' + Time.now.to_i.to_s + '.com.' 
       @names.push(@domain)
       @subdomain = 'sub.' + @domain
@@ -84,7 +84,7 @@ class Test101 < Test::Unit::TestCase
     end
   end
 
-  def test_101
+  def test_1500
     # create 101 unique zones
     @domains.each do |domain|
       @client.create(info: domain[:info], records: domain[:records])
@@ -95,10 +95,10 @@ class Test101 < Test::Unit::TestCase
     sleep 60
     assert(@client.list(name: @names[0]).any?, @names[0] + " exists.")
     assert(@client.list(name: @names[99]).any?, @names[99] + " exists.")
-    assert(@client.list(name: @names[100]).any?, @names[100] + " exists.")
+    assert(@client.list(name: @names[1000]).any?, @names[1000] + " exists.")
     testzones = @client.list # this is a bad idea on a real AWS account
     count = testzones.select {|z| @names.include?(z[:name])}.length
-    assert(count == 101, "We can list more than 100 zones.")
+    assert(count == 1500, "We can list more than 1500 zones.")
   end
 end
 
