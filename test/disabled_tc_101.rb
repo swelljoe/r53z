@@ -2,9 +2,8 @@ require 'test/unit'
 require 'time'
 require_relative '../lib/r53z'
 # Test with more than 100 zones
-# This is disabled, by default, because it takes a long time, and is 
-# currently not expected to work. It'll let us know when we handle 100+
-# zone lists correctly.
+# This is disabled, by default, because it takes a long time. It'll let us
+# know when we handle 100+ zone lists correctly.
 
 class Test101 < Test::Unit::TestCase
   def setup
@@ -20,7 +19,7 @@ class Test101 < Test::Unit::TestCase
     @domains = []
     @names = [] # A list of zones for teardown
     for i in 1..101
-      @domain = i.to_s + '-test' + Time.now.to_i.to_s + '.com.' 
+      @domain = i.to_s + '-test' + Time.now.to_i.to_s + '.com.'
       @names.push(@domain)
       @subdomain = 'sub.' + @domain
       @alias = 'alias.' + @domain
@@ -80,6 +79,7 @@ class Test101 < Test::Unit::TestCase
         @client.delete(name)
         # delete the delegation set once zone is gone
         @client.delete_delegation_set(id: dset_id) if dset_id
+        sleep 0.3
       end
     end
   end
@@ -95,11 +95,13 @@ class Test101 < Test::Unit::TestCase
     # numbers of zones? This test intermittently fails without a delay.
     sleep 60
     assert(@client.list(name: @names[0]).any?, @names[0] + " exists.")
+    sleep 0.3
     assert(@client.list(name: @names[99]).any?, @names[99] + " exists.")
+    sleep 0.3
     assert(@client.list(name: @names[100]).any?, @names[100] + " exists.")
+    sleep 0.3
     testzones = @client.list # this is a bad idea on a real AWS account
     count = testzones.select {|z| @names.include?(z[:name])}.length
     assert(count == 101, "We can list more than 100 zones.")
   end
 end
-
