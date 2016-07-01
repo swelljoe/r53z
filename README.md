@@ -16,10 +16,20 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as (it's on rubygems.org, but installation of the binary isn't working right yet, will be fixed sooon):
+Run the command with:
+
+    $ bundle exec bin/r53z
+
+And, you can run a REPL with:
+
+    $ bundle exec bin/console
+
+A `client` object has methods for most common tasks with Route 53, maybe it easy to script with. The REPL is a little clumsy on startup, as it uses the binding method, which gives some clunky output, but it allows setting up both the credentials and client automatically.
+
+Or install it yourself as (the gem installs an r53z executable in the path, but not the `console` REPL):
 
     $ gem install r53z
-
+    
 ## Usage
 
 **NOTE:** Don't get too attached to the current CLI options. I'm rewriting the option parser to use sub-commands in the near future. So, if you love it like it is (surely, nobody could love it like it is), you'll need to lock in a version that still has this parser.
@@ -35,12 +45,12 @@ region=us-east-1
 
 You can use the `--section` option to choose which section to use from the credentials file, and the credentials file can be specified with the `--credentials` option. Region is irrelevant with Route 53, but the aws-sdk weirdly still requires it be present.
 
-```
+```sh
 Usage: r53z [options] [args...]
 
 Simple CLI to manage, backup, and restore, Route 53 zones
 
-v0.3.0
+v0.3.2
 
 Options:
     -h, --help                       Show command line help
@@ -76,7 +86,7 @@ Two files will be generated in the directory specified, one for the zone metadat
 
 ##### Example
 
-```
+```sh
 $ r53z --export /home/joe/zones swelljoe.com
 ```
 
@@ -90,7 +100,7 @@ If `--delegation-set` is specified on the command line, it will override the del
 
 ##### Example
 
-```
+```sh
 $ r53z --restore /home/joe/zones swelljoe.com
 ```
 
@@ -104,7 +114,7 @@ Create zone of the NAME provided. An optional command an delegation set ID may b
 
 ##### Example
 
-```
+```sh
 $ r53z --create swelljoe.com --comment "My domain"
 ```
 
@@ -114,7 +124,7 @@ Delete one or more zones. Argument is the name of the zone, or zones, to delete.
 
 ##### Example
 
-```
+```sh
 $ r53z --delete swelljoe.com virtualmin.com
 ```
 
@@ -128,7 +138,7 @@ Specify the credentials configuration file on the command line. The file must be
 
 Finding the delegation set of a zone, and backing up all zones that share that delegation set:
 
-```
+```sh
 $ r53z --list-delegation-sets swelljoe.com
 {
   "id": "/delegationset/NKXKQ56JI1ZGT",
@@ -145,13 +155,13 @@ $ r53z --export ~/dumps --delegation-set "/delegationset/NKXKQ56JI1ZGT"
 
 Creating a new zone with an existing delegation set:
 
-```
+```sh
 $ r53z --create swelljoe.com --comment "dootdoot" --delegation-set "/delegationset/NKXKQ56JI1ZGT"
 ```
 
 Restoring a zone into a specific delegation set (this will override the delegation set specified in the dump file):
 
-```
+```sh
 $ r53z --restore ~/dumps swelljoe.com --delegation-set "/delegationset/NKXKQ56JI1ZGT"
 ```
 
@@ -167,11 +177,14 @@ To run the full test suite, you need a read/write capable account. There must be
 
 To run all tests:
 
-```
+```sh
 $ rake test
 ```
 
 This will create a few test zones in your account, but unless something goes wrong during the test, they will be removed immediately after, never triggering billing from Amazon. The zones will have somewhat randomly generated names, so they should never clash with existing names (but you may wish to create a non-production account just for testing).
+
+There is one extra tests file called disabled_tc_101.rb. It is disabled, by default, because it takes quite a while to run, especially on a slow link. It produces 101 zones, in order to exercise the list truncation handling code for sets over 100
+zones.
 
 ## Contributing
 
