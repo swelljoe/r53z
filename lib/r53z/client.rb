@@ -238,9 +238,21 @@ module R53z
       }).delegation_set[:id]
     end
 
+    # Get zone information a different way for testing
+    def list_by_id(id)
+      begin
+        zone = self.client.get_hosted_zone({
+          id: id
+          }).hosted_zone
+      rescue
+        return nil
+      end
+      return zone
+    end
+
     # Get the zone id from name
     def get_zone_id(name)
-      return self.list(:name => name).first[:id]
+      self.list(:name => name).first[:id]
     end
 
     # random string generator helper function

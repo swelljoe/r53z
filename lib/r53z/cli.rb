@@ -79,6 +79,20 @@ module R53z
         dset = @client.get_delegation_set(options['name-servers'])
         puts JSON.pretty_generate(dset.delegation_set[:name_servers])
       end
+
+      if options['list-by-id']
+        if args.empty?
+          exit_now! "List by ID requires one or more zone IDs."
+        end
+        list_by_id(args)
+      end
+
+      if options['list-records-by-id']
+        if args.empty?
+          exit_now! "List records by ID requies on or more zone IDs."
+        end
+        list_records_by_id(args)
+      end
     end
 
     def export(options:, args:)
@@ -215,6 +229,17 @@ module R53z
         end
       end
     end
+
+    def list_by_id(args)
+      args.each do |id|
+        puts JSON.pretty_generate(@client.list_by_id(id).to_hash)
+      end
+    end
+
+    def list_records_by_id(args)
+      args.each do |id|
+        puts JSON.pretty_generate(@client.list_records(id))
+      end
+    end
   end
 end
-
