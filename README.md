@@ -1,6 +1,6 @@
 # R53z
 
-A simple CLI, REPL, and library for managing Route 53. It's primary purpose is to back up and restore Route 53 zones. It can write zones to files in JSON format. It also provides a simple API (not a whole lot easier than the Amazon official API, but for backups and restores, it's much easier to script with and removes tons of boilerplate).
+A simple CLI, REPL, and library for managing Route 53. It's primary purpose is to back up and restore Route 53 zones. It can write zones to files in JSON format. It also provides a simple API (not a whole lot easier than the Amazon official API, but for backups and restores, it's much easier to script with and removes tons of boilerplate). There are several other similar tools on github (cli53 probably being the best and best known), but they all had something preventing them from working for the use cases I needed to support (or were based on old versions of the AWS API or had built their own incomplete API); as far as I can tell, r53z currently does more then the other tools out there, and once all of the backend has been hooked up to the front end, it'll be a pretty complete CLI and REPL for Route 53.
 
 ## Installation
 
