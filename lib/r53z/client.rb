@@ -238,15 +238,12 @@ module R53z
       }).delegation_set[:id]
     end
 
-    # Get zone information a different way for testing
+    # Get zone information in a different way for testing
     def list_by_id(id)
-      begin
-        zone = self.client.get_hosted_zone({
-          id: id
-          }).hosted_zone
-      rescue
-        return nil
-      end
+      # no begin, let exceptions bubble up, maybe it'll give useful data
+      zone = self.client.get_hosted_zone({
+        id: id
+      }).hosted_zone
       return zone
     end
 
