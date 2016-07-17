@@ -9,7 +9,10 @@ module R53z
 
     def self.read_json(path:)
       file = File.read(self.fix_path_json(path))
-      JSON.parse(file, :symbolize_names => true)
+      parsed = JSON.parse(file)
+      # check for aws-cli format and convert
+      parsed = self.aws_normalize(parsed)
+      return parsed
     end
 
     def self.write_json(path:, data:)
@@ -28,6 +31,32 @@ module R53z
       end
       return path
     end
+
+    def self.aws_normalize(json)
+      case json
+      when Array
+        json.each do |k|
+          aws_normalize(k)
+        end
+      when Hash
+        json.keys.each do |k|
+          value = json.delete(k)
+          case value
+          when Array
+            value = value.map{|v| aws_normalize(v)}
+          when Hash
+            value = aws_normalize(value)
+          when String
+            # Time?
+            time = time.strptime(value, "%Y-%m-%dT%H:%M:%S.000Z") rescue nil
+            value = time if time
+          end
+          new_key = k
+          new_key = Seahorse::Util.underscore(new_key) if new_key.is_a?(String)
+          json[new_key.to_sym] = value
+        end
+      end
+      json
+    end
   end
 end
-
