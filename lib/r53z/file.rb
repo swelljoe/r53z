@@ -56,6 +56,11 @@ module R53z
           json[new_key.to_sym] = value
         end
       end
+      # aws-cli wraps it in a ResourceRecordSets array; we only ever
+      # deal with one at a time, so strip it.
+      if (json[:resource_record_sets])
+        json = json[:resource_record_sets]
+      end
       json
     end
   end
