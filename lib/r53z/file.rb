@@ -58,7 +58,7 @@ module R53z
       end
       # aws-cli wraps it in a ResourceRecordSets array; we only ever
       # deal with one at a time, so strip it.
-      if (json[:resource_record_sets])
+      if (json.is_a?(Hash) && json.has_key?(:resource_record_sets))
         json = json[:resource_record_sets]
       end
       json
