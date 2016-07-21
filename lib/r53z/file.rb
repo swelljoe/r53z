@@ -32,6 +32,12 @@ module R53z
       return path
     end
 
+    # aws_normalize(json) - Accepts JSON output with CamelCase and returns
+    # snake_case that can be used by the Ruby aws-sdk.
+    # AWS CLI and other SDKs generate very different JSON; specifically,
+    # it is CamelCase rather than snake_case found in the Ruby API. This
+    # sucks, but is reasonably easy to undo, using the same underscore
+    # function that the Ruby sdk uses.
     def self.aws_normalize(json)
       case json
       when Array
@@ -60,6 +66,12 @@ module R53z
       # deal with one at a time, so strip it.
       if (json.is_a?(Hash) && json.has_key?(:resource_record_sets))
         json = json[:resource_record_sets]
+        # If there are any empty list resource_records, give them a value
+        json.each do |j|
+          if j[:resource_records].empty?
+            j[:resource_records] = [{:value => ""}]
+          end
+        end
       end
       json
     end
