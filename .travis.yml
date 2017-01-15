@@ -1,6 +1,0 @@
-before_install:
-  - gem install bundler # -v 1.7.14 if a specific version is needed
-
-language: ruby
-rvm:
- - 2.2
